@@ -5,4 +5,17 @@
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
 
+    
+    <string-array name="menu_items">
+        <item>Accueil</item>
+        <item>Horaires</item>
+        <item>MeetUp!</item>
+        <item>Amis</item>
+    </string-array>
+    
+    <string name="status_signed_out">Signed out</string>
+    <string name="signed_in_as"></string>
+    <string name="sign_out_button_name">Sign out</string>
+    <string name="play_services_error">Google Play est indisponible.  L\'application va s\'éteindre.</string>
+    <string name="close">Fermer</string>
 </resources>
