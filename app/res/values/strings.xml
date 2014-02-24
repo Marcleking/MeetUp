@@ -12,10 +12,18 @@
     <string name="title_activity_amis">Amis</string>
 
     <string-array name="left_menu_items">
+        <item>Stéphane</item>
         <item>Accueil</item>
         <item>Horaires</item>
         <item>MeetUp!</item>
-        <item>Amis</item>
+        <item>Mes amis</item>
+        <item>Paramètres</item>
+    </string-array>
+    
+    <string-array name="right_menu_items">
+        <item>Francis</item>
+        <item>Moman</item>
+        <item>Popa</item>
     </string-array>
     
     <string name="status_signed_out">Signed out</string>

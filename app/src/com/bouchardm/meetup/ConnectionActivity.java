@@ -148,14 +148,14 @@ public class ConnectionActivity extends FragmentActivity implements
           case R.id.sign_in_button:
             resolveSignInError();
             break;
-          case R.id.sign_out_button:
+          /*case R.id.sign_out_button:
             // We clear the default account on sign out so that Google Play
             // services will not return an onConnected callback without user
             // interaction.
             Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
             mGoogleApiClient.disconnect();
             mGoogleApiClient.connect();
-            break;
+            break;*/
       }
     }
   }
@@ -166,27 +166,38 @@ public class ConnectionActivity extends FragmentActivity implements
    * our app and that we were able to establish a service connection to Google
    * Play services.
    */
-  private DrawerLayout mDrawer;
-  private ListView mLeftDrawerList;
-  private String[] mLeftMenuItems;
   
   @Override
   public void onConnected(Bundle connectionHint) {
     // Reaching onConnected means we consider the user signed in.
     Log.i(TAG, "onConnected");
-    setContentView(R.layout.activity_main);
+    //setContentView(R.layout.activity_main);
     
-    this.mSignOutButton = (Button) findViewById(R.id.sign_out_button);
-    mSignOutButton.setOnClickListener(this);
-    mSignOutButton.setEnabled(true);
+    //this.mSignOutButton = (Button) findViewById(R.id.sign_out_button);
+    //mSignOutButton.setOnClickListener(this);
+    //mSignOutButton.setEnabled(true);
     
-    //this.startActivity(new Intent(this, MainActivity.class));
+    this.startActivity(new Intent(this, MainActivity.class));
     
     // Indicate that the sign in process is complete.
     mSignInProgress = STATE_DEFAULT;
   }
-
-
+  
+  public void viewHoraire (View source)
+	{
+		this.startActivity(new Intent(this, Horaire.class));
+	}
+	
+	public void viewMeetUp (View source)
+	{
+		this.startActivity(new Intent(this, MeetUp.class));
+	}
+	
+	public void viewAmis(View source)
+	{
+		this.startActivity(new Intent(this, Amis.class));
+	}
+ 
   /* onConnectionFailed is called when our Activity could not connect to Google
    * Play services.  onConnectionFailed indicates that the user needs to select
    * an account, grant permissions or resolve an error in order to sign in.

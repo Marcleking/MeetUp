@@ -51,6 +51,8 @@ public class MainActivity extends FragmentActivity  {
 	private DrawerLayout mDrawer;
 	private ListView mLeftDrawerList;
 	private String[] mLeftMenuItems;
+	private ListView mRightDrawerList;
+	private String[] mRightMenuItems;
 	//private CustomActionBarDrawerToggle mLeftDrawerToggle;	
 
 
@@ -65,7 +67,7 @@ public class MainActivity extends FragmentActivity  {
 		/* Affichage d'un horaire
 		setContentView(R.layout.horaire);
 		m_adapter = new LigneAdapter();
-		this.setListAdapter(m_adapter);
+		this.setListAdapter(m_adapter);1
 		
 		m_Tokens.add("École");
 		m_Tokens.add("Travail");
@@ -81,6 +83,7 @@ public class MainActivity extends FragmentActivity  {
 		super.onResume();
 		Log.i("test","onResume");
 		initLeftMenu();
+		initRightMenu();
 	}
 
 	@Override
@@ -116,23 +119,14 @@ public class MainActivity extends FragmentActivity  {
 		this.mLeftDrawerList = (ListView) findViewById(R.id.left_drawer);
 		
 		this.mLeftDrawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, this.mLeftMenuItems));
-		
-		this.mLeftDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 	}
 	
-	private class DrawerItemClickListener implements ListView.OnItemClickListener {
-
-		@Override
-		public void onItemClick(AdapterView parent, View view, int position,long id) {
-			
-			if(position == 0){
-				setContentView(R.layout.activity_main);
-			}
-			else if (position == 1){
-				setContentView(R.layout.activity_connection);
-			}
-			
-		}
+	private void initRightMenu(){
+		this.mRightMenuItems = getResources().getStringArray(R.array.right_menu_items);
+		this.mDrawer = (DrawerLayout)findViewById(R.id.drawer_layout);
+		this.mRightDrawerList = (ListView) findViewById(R.id.right_drawer);
+		
+		this.mRightDrawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, this.mRightMenuItems));
 	}
 }
 
