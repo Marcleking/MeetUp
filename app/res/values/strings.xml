@@ -5,6 +5,11 @@
     <string name="action_settings">Settings</string>
     <string name="lbl_choice">Cliquez sur un item de la liste</string>
     <string name="hello_world">Hello world!</string>
+    <string name="title_activity_horaire">Horaire</string>
+    <string name="title_activity_meet_up">MeetUp</string>
+    <string name="title_activity_creation_meet_up">CreationMeetUp</string>
+    <string name="title_activity_liste_amis">ListeAmis</string>
+    <string name="title_activity_amis">Amis</string>
 
     <string-array name="left_menu_items">
         <item>Accueil</item>

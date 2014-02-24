@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/menu_changerGroupe"
+        android:title="Changer de groupe" />
+    
+    <item
+        android:id="@+id/menu_supprimerAmi"
+        android:title="Supprimer l'ami :(" />
+</menu>
