@@ -1,0 +1,89 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <EditText 
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/nomEvenement"
+        android:hint="Nom de l'évènement"/>
+    
+    <EditText 
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/lieuEvenement"
+        android:hint="Lieu de l'évènement"/>
+    
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/dureeEvenement" 
+        android:inputType="time"
+        android:hint="Durée (en minute)"/>
+    
+    <LinearLayout 
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/heureMinEvenement"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:hint="Heure min (ex.: 13:00)"
+            android:inputType="time"/>
+
+        <EditText
+            android:id="@+id/heureMaxEvenement"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:hint="Heure max (ex.: 19:00)"
+            android:inputType="time" />
+        
+    </LinearLayout>
+    
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <EditText
+            android:id="@+id/dateMinEvenement"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10" 
+            android:hint="Date min (JJ/MM/AAAA)"
+            android:inputType="date"/>
+
+        <EditText
+            android:id="@+id/dateMaxEvenement"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:hint="Date max (JJ/MM/AAAA)"
+            android:inputType="date" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/ajoutAmisEvenement"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="checherAmis"
+        android:text="Gérer les amis" />
+
+    <Button
+        android:id="@+id/creeEvenement"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="creeEvenement"
+        android:text="Créé l'évènement" />
+
+</LinearLayout>

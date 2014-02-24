@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+	
+    
+    <item
+        android:id="@+id/menu_participe"
+        android:title="Je vais participer !" />
+    
+    <item
+        android:id="@+id/menu_peutEtre"
+        android:title="Je vais peut-être participer" />
+ 
+    <item 
+        android:id="@+id/menu_nePasParticiper"
+        android:title="Ne pas participer" />
+
+</menu>
