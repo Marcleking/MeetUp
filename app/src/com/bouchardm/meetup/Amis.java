@@ -67,6 +67,9 @@ public class Amis extends Activity {
 	    	  } else {
 	    		  getMenuInflater().inflate(R.menu.menu_groupe, menu);
 	    	  }
+    	  } else {
+    		  if (type == ExpandableListView.PACKED_POSITION_TYPE_CHILD)
+    			  getMenuInflater().inflate(R.menu.menu_demande_ami, menu);
     	  }
     }
     
@@ -87,6 +90,12 @@ public class Amis extends Activity {
 		//Si c'est un ami qui est sélectionner
 		if (type == ExpandableListView.PACKED_POSITION_TYPE_CHILD)
 		{
+			View ajoutGroupe = getLayoutInflater().inflate(R.layout.amis_ajout_groupe, null);
+			EditText txtGroupe = (EditText) ajoutGroupe.findViewById(R.id.btnAjoutGroupeText);
+			
+			BtnSetHandlerChangerAmiGroupe handlerHoraire = 
+					new BtnSetHandlerChangerAmiGroupe(txtGroupe, group, child);
+			
 			switch(item.getItemId())
 			{
 				case R.id.menu_supprimerAmi:
@@ -96,12 +105,6 @@ public class Amis extends Activity {
 					ExpandList.setAdapter(ExpAdapter);
 					return true;
 				case R.id.menu_changerGroupe:
-					View ajoutGroupe = getLayoutInflater().inflate(R.layout.amis_ajout_groupe, null);
-					EditText txtGroupe = (EditText) ajoutGroupe.findViewById(R.id.btnAjoutGroupeText);
-					
-					BtnSetHandlerChangerAmiGroupe handlerHoraire = 
-							new BtnSetHandlerChangerAmiGroupe(txtGroupe, group, child);
-					
 					//On demande à l'utilisateur dans quel groupe il veut envoyé sont ami
 					new AlertDialog.Builder(this)
 						.setTitle("Entrez le nom du groupe")
@@ -110,6 +113,21 @@ public class Amis extends Activity {
 						.setPositiveButton("Changer", handlerHoraire)
 						.show();
 					
+					return true;
+				case R.id.menu_accepter:
+					//On demande à l'utilisateur dans quel groupe il veut envoyé sont ami
+					new AlertDialog.Builder(this)
+						.setTitle("Entrez le nom du groupe")
+						.setView(ajoutGroupe)
+						.setNegativeButton("Annuler", null)
+						.setPositiveButton("Changer", handlerHoraire)
+						.show();
+					return true;
+				case R.id.menu_refuser:
+					//Supprimer un n'ami
+					ExpListItems.get(group).getItems().remove(child);
+					ExpAdapter = new ExpandListAdapter(Amis.this, ExpListItems);
+					ExpandList.setAdapter(ExpAdapter);
 					return true;
 			  }
 		//Si c'est un groupe qui à été sélectionner
@@ -177,6 +195,7 @@ public class Amis extends Activity {
     	listeAmi = new ArrayList<ListeAmiModel>();
     	ListeGroupeModel gru0 = new ListeGroupeModel();
     	gru0.setName("Demande d'amitié");
+    	listeAmi.add(new ListeAmiModel("Jeff la patate", null));
     	gru0.setItems(listeAmi);
     	listeAmi = new ArrayList<ListeAmiModel>();
     	
