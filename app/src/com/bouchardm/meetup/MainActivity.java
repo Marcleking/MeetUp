@@ -33,8 +33,6 @@ import java.util.ArrayList;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
 
-import com.bouchardm.meetup.menuUtil.*;
-
 public class MainActivity extends FragmentActivity  {
 
 	/**
