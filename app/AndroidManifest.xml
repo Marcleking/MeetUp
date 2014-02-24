@@ -22,6 +22,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.bouchardm.meetup.Horaire"
+            android:label="@string/title_activity_horaire" >
+        </activity>
+        <activity
+            android:name="com.bouchardm.meetup.MeetUp"
+            android:label="@string/title_activity_meet_up" >
+        </activity>
+        <activity
+            android:name="com.bouchardm.meetup.CreationMeetUp"
+            android:label="@string/title_activity_creation_meet_up" >
+        </activity>
+        <activity
+            android:name="com.bouchardm.meetup.ListeAmis"
+            android:label="@string/title_activity_liste_amis" >
+        </activity>
+        <activity
+            android:name="com.bouchardm.meetup.Amis"
+            android:label="@string/title_activity_amis" >
+        </activity>
     </application>
 
 </manifest>

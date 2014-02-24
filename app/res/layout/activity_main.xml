@@ -2,16 +2,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-
-    <TextView
-        android:id="@+id/lbl_choice"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/lbl_choice" />
     
-    <ListView 
-        android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
+    <Button 
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content" 
+        android:onClick="viewHoraire" 
+        android:id="@+id/viewHoraire" 
+        android:text="Horaire" />
+    
+     <Button 
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content" 
+        android:onClick="viewMeetUp" 
+        android:id="@+id/viewMeetUp" 
+        android:text="MeetUp" />
+    
+     <Button 
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:onClick="viewAmis"
+         android:id="@+id/viewAmis"
+         android:text="Amis" />
+     
+     
 </LinearLayout>
