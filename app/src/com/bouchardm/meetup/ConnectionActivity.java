@@ -33,9 +33,13 @@ import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 
 public class ConnectionActivity extends FragmentActivity implements
     ConnectionCallbacks, OnConnectionFailedListener,
@@ -162,6 +166,10 @@ public class ConnectionActivity extends FragmentActivity implements
    * our app and that we were able to establish a service connection to Google
    * Play services.
    */
+  private DrawerLayout mDrawer;
+  private ListView mLeftDrawerList;
+  private String[] mLeftMenuItems;
+  
   @Override
   public void onConnected(Bundle connectionHint) {
     // Reaching onConnected means we consider the user signed in.
@@ -172,13 +180,12 @@ public class ConnectionActivity extends FragmentActivity implements
     mSignOutButton.setOnClickListener(this);
     mSignOutButton.setEnabled(true);
     
-    
-    LoggedPerson user = ((LoggedPerson)getApplicationContext());
-    user.setClient(mGoogleApiClient);
+    //this.startActivity(new Intent(this, MainActivity.class));
     
     // Indicate that the sign in process is complete.
     mSignInProgress = STATE_DEFAULT;
   }
+
 
   /* onConnectionFailed is called when our Activity could not connect to Google
    * Play services.  onConnectionFailed indicates that the user needs to select
