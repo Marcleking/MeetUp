@@ -1,6 +1,7 @@
 Documentation : web-service
 ======
 
+Le service est disponible ici : http://appmeetup.appspot.com/
 
 ##/add-user
 **Paramètre**
