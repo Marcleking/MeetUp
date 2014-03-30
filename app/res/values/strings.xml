@@ -12,12 +12,12 @@
     <string name="title_activity_amis">Amis</string>
 
     <string-array name="left_menu_items">
-        <item>Stéphane</item>
-        <item>Accueil</item>
+        <item>name</item>
         <item>Horaires</item>
         <item>MeetUp!</item>
         <item>Mes amis</item>
         <item>Paramètres</item>
+        <item>Déconnexion</item>
     </string-array>
     
     <string-array name="right_menu_items">
@@ -31,4 +31,8 @@
     <string name="sign_out_button_name">Sign out</string>
     <string name="play_services_error">Google Play est indisponible.  L\'application va s\'éteindre.</string>
     <string name="close">Fermer</string>
+    
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    
 </resources>
