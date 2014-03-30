@@ -15,6 +15,8 @@
 package com.bouchardm.meetup;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.bouchardm.meetup.classes.network;
+import com.bouchardm.meetup.classes.personne;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.SignInButton;
@@ -23,6 +25,7 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.PlusClient;
+import com.google.android.gms.plus.model.people.Person;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -88,14 +91,15 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	private int mSignInError;
 
 	private SignInButton mSignInButton;
-	private Button mSignOutButton;
-
+	
 	private DrawerLayout mDrawer;
 	private ListView mLeftDrawerList;
 	private String[] mLeftMenuItems;
 	private ActionBarDrawerToggle mLeftDrawerToggle;
 	private CharSequence mTitle;
 	private CharSequence mDrawerTitle;
+	
+	private Person user;
 	
 	private class DrawerItemClickListener implements ListView.OnItemClickListener{
 		@Override
@@ -223,10 +227,10 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		this.mLeftMenuItems = getResources().getStringArray(
 				R.array.left_menu_items);
 		String name;
-		if(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient).getName().hasFormatted())
-			name = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient).getName().getFormatted();
+		if(user.getName().hasFormatted())
+			name = user.getName().getFormatted();
 		else
-			name = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient).getDisplayName();
+			name = user.getDisplayName();
 		this.mLeftMenuItems[0] = name;
 		this.mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 		this.mLeftDrawerList = (ListView) findViewById(R.id.left_drawer);
@@ -247,9 +251,21 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	public void onConnected(Bundle connectionHint) {
 		// Reaching onConnected means we consider the user signed in.
 		Log.i(TAG, "onConnected");
+		user = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
+		
+		// Vérification de l'existance de l'usager dans la BD locale
+		personne personne = new personne(this);
+		personne.open();
+		if(!personne.userExisting(user.getId())){
+			// Ajout de l'usager dans la BD locale
+			personne.insert(user.getId());
+			// Ajout de l'usager dans le WebService
+			network.addUser(user, personne.getConnectedPersonSecurity(user.getId()));
+		}
 
 		// this.startActivity(new Intent(this, MainActivity.class));
 		setContentView(R.layout.activity_main);
+		
 		initMainActivity();
 		// Indicate that the sign in process is complete.
 		mSignInProgress = STATE_DEFAULT;
