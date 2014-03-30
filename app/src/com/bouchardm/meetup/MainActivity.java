@@ -1,39 +1,22 @@
 package com.bouchardm.meetup;
 
 import android.content.Intent;
-import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.ListActivity;
-import android.content.DialogInterface;
-import android.view.Menu;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.view.View;
-
-
-import java.util.ArrayList;
-
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.plus.Plus;
 
-public class MainActivity extends FragmentActivity  {
+public class MainActivity extends FragmentActivity implements ConnectionCallbacks, OnConnectionFailedListener,
+View.OnClickListener {
 
 	/**
 	 * Attributs de la view
@@ -53,7 +36,11 @@ public class MainActivity extends FragmentActivity  {
 	private String[] mRightMenuItems;
 	//private CustomActionBarDrawerToggle mLeftDrawerToggle;	
 
-
+	private GoogleApiClient mGoogleApiClient;
+	
+	
+	
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -61,6 +48,8 @@ public class MainActivity extends FragmentActivity  {
 		Log.i("test","onCreate");
 		
 		initLeftMenu();
+		
+		mGoogleApiClient = buildGoogleApiClient();
 		
 		/* Affichage d'un horaire
 		setContentView(R.layout.horaire);
@@ -75,6 +64,18 @@ public class MainActivity extends FragmentActivity  {
 		}
 		*/
 	}
+	
+	private GoogleApiClient buildGoogleApiClient() {
+	    // When we build the GoogleApiClient we specify where connected and
+	    // connection failed callbacks should be returned, which Google APIs our
+	    // app uses and which OAuth 2.0 scopes our app requests.
+	    return new GoogleApiClient.Builder(this)
+	        .addConnectionCallbacks(this)
+	        .addOnConnectionFailedListener(this)
+	        .addApi(Plus.API, null)
+	        .addScope(Plus.SCOPE_PLUS_LOGIN)
+	        .build();
+	  }
 	
 	@Override
 	protected void onResume(){
@@ -104,7 +105,10 @@ public class MainActivity extends FragmentActivity  {
 		this.startActivity(new Intent(this, Amis.class));
 	}
 	
-	
+	public void disconnect(View source){
+		mGoogleApiClient.disconnect();
+		this.startActivity(new Intent(this, ConnectionActivity.class));
+	}
 
 	@Override
 	protected void onStop() {
@@ -125,6 +129,30 @@ public class MainActivity extends FragmentActivity  {
 		this.mRightDrawerList = (ListView) findViewById(R.id.right_drawer);
 		
 		this.mRightDrawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, this.mRightMenuItems));
+	}
+
+	@Override
+	public void onConnectionFailed(ConnectionResult arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onClick(View v) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onConnected(Bundle arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onConnectionSuspended(int arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 }
 

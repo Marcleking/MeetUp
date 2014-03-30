@@ -8,34 +8,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical" >
-
-        <Button
-            android:id="@+id/viewHoraire"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:onClick="viewHoraire"
-            android:text="Horaire" />
-
-        <Button
-            android:id="@+id/viewMeetUp"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:onClick="viewMeetUp"
-            android:text="MeetUp" />
-
-        <Button
-            android:id="@+id/viewAmis"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:onClick="viewAmis"
-            android:text="Amis" />
-
-<!--         <Button -->
-<!--             android:id="@+id/sign_out_button" -->
-<!--             android:layout_width="wrap_content" -->
-<!--             android:layout_height="wrap_content" -->
-<!--             android:enabled="true" -->
-<!--             android:text="@string/sign_out_button_name" /> -->
     </LinearLayout>
 
     <ListView

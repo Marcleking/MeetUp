@@ -27,7 +27,7 @@ class MainPageHandler(webapp.RequestHandler):
 class AddUser(webapp.RequestHandler):
     def get(self):
         try:
-            #On inisialise l'utilisateur
+            #On initialise l'utilisateur
             user = Utilisateur()
             
             user.username = self.request.get("username")
@@ -62,7 +62,88 @@ class AddUser(webapp.RequestHandler):
         except Exception, ex:
             logging.error(ex)
             self.error(500)
-            
+
+class GetUsers(webapp.RequestHandler)
+	def get(self):
+		try:
+			self.response.headers["Content-Type"] = 'application/json'
+			q = Utilisateur.all()
+			q.filter('username !=', self.request.get("username"))
+			result = q.get(keys_only=True)
+			
+			if result is not None:
+				listePers = []
+				for p in result:
+					persInJson = to_dict(p.username)
+					listePers.append(persInJson)
+			
+				response = {
+					MSG_RESULT : MSG_SUCCESS,
+					'personnes' : listePers
+				}
+			else:
+				reponse = {
+					MSG_RESULT : MSG_ERROR,
+					'message' : 'Il n\'y a pas d\'autres usagers.'
+				}
+			self.response.out.write(json.dumps(response))
+		
+		except Exception, ex:
+			logging.error(ex)
+			self.error(500)
+			
+class GetFriendList(webapp.RequestHandler):
+	def get(self):
+		try:
+			self.response.headers["Content-Type"] = 'application/json'
+			q = Utilisateur.all()
+			q.filter('username =', self.request.get("username"))
+			me = q.get(keys_only=True)
+			
+			if me is not None:
+				listeAmis = me.listAmi
+				response = {
+					MSG_RESULT : MSG_SUCCESS,
+					'amis' : listeAmis
+				}
+			else:
+				response = {
+					MSG_RESULT : MSG_ERROR.
+					'message' : 'L\'utilisateur n\'existe pas.'
+				}
+			
+			self.response.out.write(json.dumps(response))
+		
+		except Exception, ex:
+			logging.error(ex)
+			self.error(500)
+				
+class GetListeDemandes(webapp.RequestHandler):
+	def get(self):
+		try:
+			self.response.headers["Content-Type"] = 'application/json'
+			q = Utilisateur.all()
+			q.filter('username =', self.request.get("username"))
+			me = q.get(keys_only=True)
+			
+			if me is not None:
+				listeDemandes = me.listDemande
+				reponse = {
+					MSG_RESULT : MSG_SUCCESS,
+					'demandes' : listeDemandes
+				}
+			else:
+				response = {
+					MSG_RESULT : MSG_ERROR,
+					'message' : 'L\'utilisateur n\'existe pas.'
+				}
+			
+			self.response.out.write(json.dumps(response))
+			
+		except Exception, ex:
+			logging.error(ex)
+			self.error(500)
+			
 class AskFriend(webapp.RedirectHandler):
     def get(self):
         try:
@@ -96,7 +177,7 @@ class AskFriend(webapp.RedirectHandler):
                     
                     response = {
                         MSG_RESULT : MSG_SUCCESS,
-                        "message" : "Demande fait!"
+                        "message" : "Demande effectuée!"
                     }
             
             self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
@@ -298,7 +379,7 @@ class DeleteMeetUp(webapp.RedirectHandler):
                         
                 response = {
                     MSG_RESULT : MSG_SUCCESS,
-                    "message"    : "Le MeetUp à bien été supprimer!"
+                    "message"    : "Le MeetUp a été supprimé!"
                 }
                     
                 self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
@@ -328,7 +409,7 @@ class InviteUserAtMeetUp(webapp.RedirectHandler):
             
             response = {
                 MSG_RESULT : MSG_ERROR,
-                "message"    : "Vous n'avez pas les droits"
+                "message"    : "Vous n'avez pas les droits d\'accès"
             }
             
             isFriend = 0
@@ -368,7 +449,7 @@ class InviteUserAtMeetUp(webapp.RedirectHandler):
                     
                     response = {
                         MSG_RESULT : MSG_SUCCESS,
-                        "message"    : "L'ami à bien été ajouter"
+                        "message"    : "L'ami a été ajouté"
                     }
                 
             self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
@@ -416,7 +497,7 @@ class AcceptInviteMeetUp(webapp.RequestHandler):
                 
             response = {
                 MSG_RESULT : MSG_SUCCESS,
-                "message"    : "Votre participation à bien été enregistré"
+                "message"    : "Votre participation a été enregistrée"
             }
                 
             self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
@@ -463,7 +544,7 @@ class removeUserFromMeetUp(webapp.RequestHandler):
                 
                 response = {
                     MSG_RESULT : MSG_SUCCESS,
-                    "message"    : "Votre participation à bien été supprimé"
+                    "message"    : "Votre participation a été supprimée"
                 }
                     
                 self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
@@ -490,7 +571,7 @@ class AddNotif(webapp.RequestHandler):
             
             response = {
                 MSG_RESULT : MSG_SUCCESS,
-                "message" : "Notification envoyé!"
+                "message" : "Notification envoyée"
             }
     
             self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
@@ -533,6 +614,9 @@ class ReadNotif(webapp.RequestHandler):
 def configurerHandler():
     application = webapp.WSGIApplication([('/',              MainPageHandler),
                                           ('/add-user',      AddUser),
+										  ('/get-users',	 GetUsers),
+										  ('/get-friends',	 GetFrienList),
+										  ('/get-demandes',	 GetListeDemandes),
                                           ('/ask-friend',    AskFriend),
                                           ('/add-friend',    AddFriend),
                                           ('/list-meetUp',   ListMeetUp),
