@@ -36,6 +36,9 @@ import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.provider.Contacts.People;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -101,6 +104,8 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	
 	private Person user;
 	
+	private Fragment activeFragment;
+	
 	private class DrawerItemClickListener implements ListView.OnItemClickListener{
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id){
@@ -153,19 +158,35 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	}
 	
 	private void selectItem(int position){
-		
+		FragmentManager fragmentManager;
 		switch(position){
 		// Horaire
 		case 1:
-			this.startActivity(new Intent(this, Horaire.class));
+			Fragment horaireFragment = new FragmentHoraire();
+			activeFragment = horaireFragment;
+			fragmentManager = getSupportFragmentManager();
+			fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment).commit();
+			//this.startActivity(new Intent(this, Horaire.class));
 			break;
 		// MeetUp
 		case 2:
+			//Fragment meetUpFragment = new FragmentMeetUp();
+			//activeFragment = meetUpFragment;
+			//fragmentManager = getSupportFragmentManager();
+			//fragmentManager.beginTransaction().replace(R.id.content_frame,meetUpFragment).commit();
 			this.startActivity(new Intent(this, MeetUp.class));
 			break;
 		// Amis
 		case 3:
-			this.startActivity(new Intent(this, Amis.class));
+			//this.startActivity(new Intent(this, Amis.class));
+			
+			Fragment friendFragment = new FragmentAmis();
+			activeFragment = friendFragment;
+			((FragmentAmis) friendFragment).setmGoogleApiClient(mGoogleApiClient);
+			fragmentManager = getSupportFragmentManager();
+			fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment).commit();
+			
+			
 			break;
 		// Déconnexion
 		case 5:
@@ -197,6 +218,21 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putInt(SAVED_PROGRESS, mSignInProgress);
+		if(activeFragment != null){
+			activeFragment.onSaveInstanceState(outState);
+			getSupportFragmentManager().putFragment(outState, "fragment", activeFragment);
+		}
+	}
+	
+	@Override
+	protected void onRestoreInstanceState(Bundle inState){
+		super.onSaveInstanceState(inState);
+		if(activeFragment != null){
+			activeFragment = getSupportFragmentManager().getFragment(inState, "fragment");
+			FragmentManager fragmentManager;
+			fragmentManager = getSupportFragmentManager();
+			fragmentManager.beginTransaction().replace(R.id.content_frame, activeFragment).commit();
+		}
 	}
 	
 	private void initMainActivity(){
@@ -260,7 +296,12 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 			// Ajout de l'usager dans la BD locale
 			personne.insert(user.getId());
 			// Ajout de l'usager dans le WebService
-			network.addUser(user, personne.getConnectedPersonSecurity(user.getId()));
+			
+			network.addUser ajoutUsager = new network.addUser();
+			ajoutUsager.setP_user(user);
+			ajoutUsager.setP_sha1(personne.getConnectedPersonSecurity(user.getId()));
+			ajoutUsager.execute();
+			
 		}
 
 		// this.startActivity(new Intent(this, MainActivity.class));
@@ -269,21 +310,6 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		initMainActivity();
 		// Indicate that the sign in process is complete.
 		mSignInProgress = STATE_DEFAULT;
-	}
-	
-	public void viewHoraire (View source)
-	{
-		this.startActivity(new Intent(this, Horaire.class));
-	}
-	
-	public void viewMeetUp (View source)
-	{
-		this.startActivity(new Intent(this, MeetUp.class));
-	}
-	
-	public void viewAmis(View source)
-	{
-		this.startActivity(new Intent(this, Amis.class));
 	}
 	
 	/*

@@ -2,6 +2,8 @@ package com.bouchardm.meetup;
 
 import java.util.ArrayList;
 
+import com.google.android.gms.plus.Plus;
+
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -195,7 +197,7 @@ public class Amis extends Activity {
     	listeGroupe = new ArrayList<ListeGroupeModel>();
     	listeAmi = new ArrayList<ListeAmiModel>();
     	ListeGroupeModel gru0 = new ListeGroupeModel();
-    	gru0.setName("Demande d'amitié");
+    	gru0.setName("Demandes d'amitié");
     	listeAmi.add(new ListeAmiModel("Jeff la patate", null));
     	gru0.setItems(listeAmi);
     	listeAmi = new ArrayList<ListeAmiModel>();
@@ -302,7 +304,7 @@ public class Amis extends Activity {
 		
 		//On demande le nom de l'ami à l'utilisateur
 		new AlertDialog.Builder(this)
-			.setTitle("Ajouté un ami")
+			.setTitle("Ajouter un ami")
 			.setView(ajoutGroupe)
 			.setNegativeButton("Annuler", null)
 			.setPositiveButton("Ajouter", handlerHoraire)
@@ -339,6 +341,11 @@ public class Amis extends Activity {
 		 */
 		@Override
 		public void onClick(DialogInterface dialog, int which) {
+					
+			/*
+			 * Ancien code statique
+			 * 
+			 */ 
 			//Création d'une nouvelle liste d'ami
 	    	listeAmi = new ArrayList<ListeAmiModel>();
 	        
@@ -359,6 +366,8 @@ public class Amis extends Activity {
 	        //On rafraichit l'affichage
 	        ExpAdapter = new ExpandListAdapter(Amis.this, ExpListItems);
 	        ExpandList.setAdapter(ExpAdapter);
+	        /*
+	        */
 		}
 	}
 	
