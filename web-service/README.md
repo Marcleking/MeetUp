@@ -4,6 +4,7 @@ Documentation : web-service
 Le service est disponible ici : http://appmeetup.appspot.com/
 
 ##/add-user
+Ajoute un nouvel utilisateur dans la BD
 **Paramètre**
 * username
 * password
@@ -14,6 +15,7 @@ Le service est disponible ici : http://appmeetup.appspot.com/
 * key
 
 ##/ask-friend
+Fait un demande à un utilisateur
 **Paramètre**
 * moi
 * password
@@ -23,6 +25,7 @@ Le service est disponible ici : http://appmeetup.appspot.com/
 * message
 
 ##/add-friend
+Ajoute un utilisateur comme ami (il faut que l'utilisateur soit préalablement dans les demandes d'amitié)
 **Paramètre**
 * moi
 * password
@@ -32,6 +35,7 @@ Le service est disponible ici : http://appmeetup.appspot.com/
 * message
 
 ##/list-meetUp
+Liste toute les MeetUp d'un utilisateur
 **Paramètre**
 * moi
 * password
@@ -40,6 +44,7 @@ Le service est disponible ici : http://appmeetup.appspot.com/
 * listMeetUp
 
 ##/add-meetUp
+Anjoute un nouveau MeetUp
 **Paramètre**
 * moi
 * password
@@ -55,6 +60,7 @@ Le service est disponible ici : http://appmeetup.appspot.com/
 * key
 
 ##/invite-friend
+Invite un utilisateur à être ami
 **Paramètre**
 * moi
 * password
@@ -65,6 +71,7 @@ Le service est disponible ici : http://appmeetup.appspot.com/
 * message
 
 ##/accept-meetUp
+Accepte un demande de participation à un meetUp
 **Paramètre**
 * moi
 * password
@@ -74,11 +81,17 @@ Le service est disponible ici : http://appmeetup.appspot.com/
 * message
 
 ##/delete-meetUp
+Supprime un MeetUp (fonctionnel uniquement pour le créateur du MeetUp)
 **Paramètre**
+* moi
+* password
+* supprime
+
 **Retourne**
+* message
 
 ##/delete-user-meetUp
-(Se supprimer d'un meetUp)
+Pour supprimer sa participation à un meetUp
 **Paramètre**
 * moi
 * password
@@ -88,6 +101,7 @@ Le service est disponible ici : http://appmeetup.appspot.com/
 * message
 
 ##/add-notif
+Ajoute une notification à un utilisateur
 **Paramètre**
 * username
 * notif
@@ -96,6 +110,7 @@ Le service est disponible ici : http://appmeetup.appspot.com/
 *message
 
 ##/read-notif
+Lit les notifications d'un utilisateur (Les notifications sont supprimer après)
 **Paramètre**
 * moi
 * password
@@ -104,6 +119,7 @@ Le service est disponible ici : http://appmeetup.appspot.com/
 * notif (liste des notifications)
 
 ##/delete-friend
+Supprime un ami
 **Paramètre**
 * moi
 * password
@@ -111,3 +127,27 @@ Le service est disponible ici : http://appmeetup.appspot.com/
 
 **Retourne**
 * message
+
+##/get-users
+Retourne la liste de tout les utilisateurs
+**Paramètre**
+* username
+
+**Retourne**
+* personnes
+
+##/get-friends
+Retourne la liste d'ami pour un utilisateur
+**Paramètre**
+* username
+
+**Retourne**
+* amis
+
+##/get-demandes
+Retourne la liste des demandes d'un utilisateur
+**Paramètre**
+* username
+
+**Retourne**
+* demandes

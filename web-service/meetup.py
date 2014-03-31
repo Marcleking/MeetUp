@@ -405,7 +405,7 @@ class InviteUserAtMeetUp(webapp.RedirectHandler):
             
             
             idMeetUp = self.request.get("meetUp")
-            motDePasse = self.request.get("mot-de-passe")
+            motDePasse = self.request.get("password")
             
             response = {
                 MSG_RESULT : MSG_ERROR,
@@ -559,7 +559,7 @@ class AddNotif(webapp.RequestHandler):
     def get(self):
         try:
             listUser = Utilisateur.all()
-            listUser.filter("username =", self.request.get("moi"))
+            listUser.filter("username =", self.request.get("username"))
             me = listUser.get()
             
             #On ajoute la notification à la liste des notifications
@@ -588,19 +588,21 @@ class ReadNotif(webapp.RequestHandler):
             listUser = Utilisateur.all()
             listUser.filter("username =", self.request.get("moi"))
             me = listUser.get()
-            #On va chercher les notifications puis on les supprimes puisqu'on les a lu
-            listeNotification = me.listNotification
-            me.listNotification = []
             
-            me.put()
-            
-            response = {
-                MSG_RESULT : MSG_SUCCESS,
-                "notif" : listeNotification
-            }
-    
-            self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
-            self.response.out.write(json.dumps(response))
+            if me.password == self.resquest.get("password"):
+                #On va chercher les notifications puis on les supprimes puisqu'on les a lu
+                listeNotification = me.listNotification
+                me.listNotification = []
+                
+                me.put()
+                
+                response = {
+                    MSG_RESULT : MSG_SUCCESS,
+                    "notif" : listeNotification
+                }
+        
+                self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
+                self.response.out.write(json.dumps(response))
             
         
         except Exception, ex:
