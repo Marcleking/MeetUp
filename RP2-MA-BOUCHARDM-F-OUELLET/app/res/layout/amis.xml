@@ -1,0 +1,28 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <Button 
+        android:id="@+id/btnAjoutGroupe"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Ajout groupe" />
+    
+    <Button 
+        android:id="@+id/btnAjoutAmis"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Ajout amis" />
+    
+    <ExpandableListView
+                android:id="@+id/ExpList"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent" />
+ 
+     <TextView android:id="@+id/android:empty"
+               android:layout_width="fill_parent" 
+               android:layout_height="fill_parent"
+               android:text="Vous n'avez aucun amis :("/>
+
+</LinearLayout>
