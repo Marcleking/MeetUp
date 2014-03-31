@@ -244,33 +244,27 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
     	// Donnée hard-coded
     	listeGroupe = new ArrayList<ListeGroupeModel>();
     	listeAmi = new ArrayList<ListeAmiModel>();
-    	ListeGroupeModel gru0 = new ListeGroupeModel();
-    	gru0.setName("Demandes d'amitié");
-    	listeAmi.add(new ListeAmiModel("Jeff la patate", null));
-    	gru0.setItems(listeAmi);
-    	listeAmi = new ArrayList<ListeAmiModel>();
     	
     	ListeGroupeModel gru1 = new ListeGroupeModel();
         gru1.setName("Vos demandes d'amitié");
-        ListeAmiModel ch1_1 = new ListeAmiModel("LCD la lumière - Accepter", null);
+        ListeAmiModel ch1_1 = new ListeAmiModel("LCD - Accepter", null);
         listeAmi.add(ch1_1);
-        ListeAmiModel ch1_2 = new ListeAmiModel("Judith la bizarre - En attente", null);
+        ListeAmiModel ch1_2 = new ListeAmiModel("Judith - En attente", null);
         listeAmi.add(ch1_2);
-        ListeAmiModel ch1_3 = new ListeAmiModel("Gilles l'ancien - Refusé", null);
+        ListeAmiModel ch1_3 = new ListeAmiModel("Gilles - Refuser", null);
         listeAmi.add(ch1_3);
         gru1.setItems(listeAmi);
         listeAmi = new ArrayList<ListeAmiModel>();
         
         ListeGroupeModel gru2 = new ListeGroupeModel();
         gru2.setName("Famille");
-        ListeAmiModel ch2_1 = new ListeAmiModel("Francis le pas vite", null);
+        ListeAmiModel ch2_1 = new ListeAmiModel("Francis", null);
         listeAmi.add(ch2_1);
-        ListeAmiModel ch2_2 = new ListeAmiModel("Moman", null);
+        ListeAmiModel ch2_2 = new ListeAmiModel("Maman", null);
         listeAmi.add(ch2_2);
-        ListeAmiModel ch2_3 = new ListeAmiModel("Popa", null);
+        ListeAmiModel ch2_3 = new ListeAmiModel("Papa", null);
         listeAmi.add(ch2_3);
         gru2.setItems(listeAmi);
-        listeGroupe.add(gru0);
         listeGroupe.add(gru1);
         listeGroupe.add(gru2);
         
@@ -290,7 +284,7 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 		
 		//On demande à l'utilisateur le nom du groupe
 		new AlertDialog.Builder(rootView.getContext())
-			.setTitle("Ajouté un groupe")
+			.setTitle("Ajouter un groupe")
 			.setView(ajoutGroupe)
 			.setNegativeButton("Annuler", null)
 			.setPositiveButton("Ajouter", handlerHoraire)
@@ -446,8 +440,7 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 			
 			String nomGroupe = m_txtGroupe.getText().toString();
 			
-			if (!nomGroupe.equalsIgnoreCase("Demande d'amitié") && 
-				!nomGroupe.equalsIgnoreCase("Vos demandes d'amitié") &&
+			if (!nomGroupe.equalsIgnoreCase("Vos demandes d'amitié") &&
 				!nomGroupe.trim().equalsIgnoreCase(""))
 			{
 				//Changement du nom
@@ -495,8 +488,7 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 			
 			String nomGroupe = m_txtGroupe.getText().toString();
 			
-			if (!nomGroupe.equalsIgnoreCase("Demande d'amitié") && 
-				!nomGroupe.equalsIgnoreCase("Vos demandes d'amitié") &&
+			if (!nomGroupe.equalsIgnoreCase("Vos demandes d'amitié") &&
 				!nomGroupe.trim().equalsIgnoreCase(""))
 			{
 				ListeAmiModel amiTempo = ExpListItems.get(m_ancienGroupe).getItem(m_ancienAmi);
