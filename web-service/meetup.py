@@ -63,87 +63,91 @@ class AddUser(webapp.RequestHandler):
             logging.error(ex)
             self.error(500)
 
-class GetUsers(webapp.RequestHandler)
-	def get(self):
-		try:
-			self.response.headers["Content-Type"] = 'application/json'
-			q = Utilisateur.all()
-			q.filter('username !=', self.request.get("username"))
-			result = q.get(keys_only=True)
-			
-			if result is not None:
-				listePers = []
-				for p in result:
-					persInJson = to_dict(p.username)
-					listePers.append(persInJson)
-			
-				response = {
-					MSG_RESULT : MSG_SUCCESS,
-					'personnes' : listePers
-				}
-			else:
-				reponse = {
-					MSG_RESULT : MSG_ERROR,
-					'message' : 'Il n\'y a pas d\'autres usagers.'
-				}
-			self.response.out.write(json.dumps(response))
-		
-		except Exception, ex:
-			logging.error(ex)
-			self.error(500)
-			
+class GetUsers(webapp.RequestHandler):
+    def get(self):
+        try:
+            q = Utilisateur.all()
+            q.filter('username !=', self.request.get("username"))
+            result = q.run()
+            
+            if result is not None:
+                
+                listePers = []
+                for p in result:
+                    
+                    #persInJson = to_dict(p.username)
+                    listePers.append(p.username)
+            
+                response = {
+                    MSG_RESULT : MSG_SUCCESS,
+                    'personnes' : listePers
+                }
+            else:
+                response = {
+                    MSG_RESULT : MSG_SUCCESS,
+                    'message' : 'Il n\'y a pas d\'autres usagers.'
+                }
+            
+            self.response.headers["Content-Type"] = 'application/json'
+            self.response.out.write(json.dumps(response))
+        
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+            
 class GetFriendList(webapp.RequestHandler):
-	def get(self):
-		try:
-			self.response.headers["Content-Type"] = 'application/json'
-			q = Utilisateur.all()
-			q.filter('username =', self.request.get("username"))
-			me = q.get(keys_only=True)
-			
-			if me is not None:
-				listeAmis = me.listAmi
-				response = {
-					MSG_RESULT : MSG_SUCCESS,
-					'amis' : listeAmis
-				}
-			else:
-				response = {
-					MSG_RESULT : MSG_ERROR.
-					'message' : 'L\'utilisateur n\'existe pas.'
-				}
-			
-			self.response.out.write(json.dumps(response))
-		
-		except Exception, ex:
-			logging.error(ex)
-			self.error(500)
-				
+    def get(self):
+        try:
+            q = Utilisateur.all()
+            q.filter('username =', self.request.get("username"))
+            me = q.get()
+            
+            if me is not None:
+                listeAmis = me.listAmi
+                response = {
+                    MSG_RESULT : MSG_SUCCESS,
+                    'amis' : listeAmis
+                }
+            else:
+                response = {
+                    MSG_RESULT : MSG_ERROR,
+                    'message' : 'L\'utilisateur n\'existe pas.'
+                }
+            
+            
+            self.response.headers["Content-Type"] = 'application/json'
+            self.response.out.write(json.dumps(response))
+        
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+                
 class GetListeDemandes(webapp.RequestHandler):
-	def get(self):
-		try:
-			self.response.headers["Content-Type"] = 'application/json'
-			q = Utilisateur.all()
-			q.filter('username =', self.request.get("username"))
-			me = q.get(keys_only=True)
-			
-			if me is not None:
-				listeDemandes = me.listDemande
-				reponse = {
-					MSG_RESULT : MSG_SUCCESS,
-					'demandes' : listeDemandes
-				}
-			else:
-				response = {
-					MSG_RESULT : MSG_ERROR,
-					'message' : 'L\'utilisateur n\'existe pas.'
-				}
-			
-			self.response.out.write(json.dumps(response))
-			
-		except Exception, ex:
-			logging.error(ex)
-			self.error(500)
-			
+    def get(self):
+        try:
+            q = Utilisateur.all()
+            q.filter('username =', self.request.get("username"))
+            me = q.get()
+            
+            if me is not None:
+                listeDemandes = me.listDemande
+                response = {
+                    MSG_RESULT : MSG_SUCCESS,
+                    'demandes' : listeDemandes
+                }
+            else:
+                response = {
+                    MSG_RESULT : MSG_ERROR,
+                    'message' : 'L\'utilisateur n\'existe pas.'
+                }
+            
+            self.response.headers["Content-Type"] = 'application/json'
+            self.response.out.write(json.dumps(response))
+            
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+            
 class AskFriend(webapp.RedirectHandler):
     def get(self):
         try:
@@ -615,7 +619,7 @@ def configurerHandler():
     application = webapp.WSGIApplication([('/',              MainPageHandler),
                                           ('/add-user',      AddUser),
 										  ('/get-users',	 GetUsers),
-										  ('/get-friends',	 GetFrienList),
+										  ('/get-friends',	 GetFriendList),
 										  ('/get-demandes',	 GetListeDemandes),
                                           ('/ask-friend',    AskFriend),
                                           ('/add-friend',    AddFriend),
