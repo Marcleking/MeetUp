@@ -33,9 +33,9 @@ public class ListeAmis extends ListActivity {
 		m_adapter = new LigneAdapter();
 		this.setListAdapter(m_adapter);
 		
-		m_Tokens.add("Stephane la banane");
-		m_Tokens.add("Françis la réglisse");
-		m_Tokens.add("Marc-Antoine le dieu parmit les vivants");
+		m_Tokens.add("Stéphane");
+		m_Tokens.add("Francis");
+		m_Tokens.add("Marc-Antoine");
 		
 		for (String token : m_Tokens) {
 			m_RowModels.add(new RowModel(token, false));
