@@ -2,7 +2,7 @@ package com.bouchardm.meetup;
 
 import java.util.ArrayList;
 
-import com.google.android.gms.plus.Plus;
+import com.google.android.gms.plus.Plus; 
 
 import android.os.Bundle;
 import android.os.Parcel;

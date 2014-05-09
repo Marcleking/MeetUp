@@ -148,7 +148,7 @@ class GetListeDemandes(webapp.RequestHandler):
             logging.error(ex)
             self.error(500)
             
-class AskFriend(webapp.RedirectHandler):
+class AskFriend(webapp.RequestHandler):
     def get(self):
         try:
             listUser = Utilisateur.all()
@@ -165,6 +165,7 @@ class AskFriend(webapp.RedirectHandler):
                 if me.username != theFriend.username: 
 
                     listeDemande = theFriend.listDemande
+                    listNotif = theFriend.listNotification
                     
                     #On fait la demande d'amitier uniquement si elle n'est pas déjà la
                     continuer = 1
@@ -174,10 +175,12 @@ class AskFriend(webapp.RedirectHandler):
                     
                     if continuer:
                         listeDemande.append(me.username)
-                    
-                    theFriend.listDemande = listeDemande
-                    
+                        theFriend.listDemande = listeDemande
+                        
+                        theFriend.listNotification.append('Vous avez une nouvelle demande d\'ami!')
+                        
                     theFriend.put()
+                    
                     
                     response = {
                         MSG_RESULT : MSG_SUCCESS,
@@ -588,12 +591,16 @@ class AddNotif(webapp.RequestHandler):
             
 class ReadNotif(webapp.RequestHandler):
     def get(self):
+         
         try:
             listUser = Utilisateur.all()
             listUser.filter("username =", self.request.get("moi"))
             me = listUser.get()
+
             
-            if me.password == self.resquest.get("password"):
+            
+            
+            if me.password == self.request.get("password"):
                 #On va chercher les notifications puis on les supprimes puisqu'on les a lu
                 listeNotification = me.listNotification
                 me.listNotification = []

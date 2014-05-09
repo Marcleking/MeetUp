@@ -3,6 +3,7 @@ package com.bouchardm.meetup;
 import java.util.ArrayList;
 
 import com.bouchardm.meetup.classes.network;
+import com.bouchardm.meetup.util.AsyncHttpGet;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -397,6 +398,10 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 	        //Création d'un nouvel ami
 	        ListeAmiModel nouvelAmi = new ListeAmiModel(m_txtGroupe.getText().toString(), null);
 	        listeAmi.add(nouvelAmi);
+	        
+	        //Ajout du nouvel ami dans le web service
+	        // TODO faire que c'est l'utilisateur qui est connecter qui fait la demande (avec son mot de passe aussi)
+	        new AsyncHttpGet().execute("http://appmeetup.appspot.com/ask-friend?moi=Marc&password=motDePasse&demande="+m_txtGroupe.getText().toString());
 	        
 	        //On met à jour la liste d'ami dans le groupe
 	        ExpListItems.get(0).setItems(listeAmi);
