@@ -106,7 +106,8 @@ class GetFriendList(webapp.RequestHandler):
                 listeAmis = me.listAmi
                 response = {
                     MSG_RESULT : MSG_SUCCESS,
-                    'amis' : listeAmis
+                    'amis' : listeAmis,
+                    'demande' : me.listDemande
                 }
             else:
                 response = {

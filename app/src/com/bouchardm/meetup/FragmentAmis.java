@@ -1,6 +1,18 @@
 package com.bouchardm.meetup;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.bouchardm.meetup.classes.network;
 import com.bouchardm.meetup.util.AsyncHttpGet;
@@ -10,6 +22,7 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.plus.Plus;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -69,6 +82,9 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 		ExpandList = (ExpandableListView) rootView.findViewById(R.id.ExpList);
 		
 		ExpListItems = SetStandardGroups();
+		// TODO : faire en sorte que c'est le username de l'utilisateur
+		new AsyncGetAmi().execute("http://www.appmeetup.appspot.com/get-friends?username=Mar2c");
+		
 		
 		ExpAdapter = new ExpandListAdapter(rootView.getContext(), ExpListItems);
         ExpandList.setAdapter(ExpAdapter);
@@ -82,6 +98,7 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
         
 		return rootView;
 	}
+
 	
     /**
      * Gestion du context menu sur la liste
@@ -100,11 +117,10 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
     	  int child = ExpandableListView.getPackedPositionChild(info.packedPosition);
 
     	  // On gère que le context menu est créé pour les bonne ligne
-    	  if (ExpListItems.get(group).getName() != "Demande d'amitié" && 
-    			  ExpListItems.get(group).getName() != "Vos demandes d'amitié"){
+    	  if (ExpListItems.get(group).getName() != "Demandes d'ami"){
 	    	  if (type == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
 	    		  getActivity().getMenuInflater().inflate(R.menu.menu_ami, menu);
-	    	  } else {
+	    	  } else if (ExpListItems.get(group).getName() != "Mes amis") {
 	    		  getActivity().getMenuInflater().inflate(R.menu.menu_groupe, menu);
 	    	  }
     	  } else {
@@ -167,13 +183,38 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 					
 					return true;
 				case R.id.menu_accepter:
-					//On demande à l'utilisateur dans quel groupe il veut envoyé sont ami
-					new AlertDialog.Builder(rootView.getContext())
-						.setTitle("Entrez le nom du groupe")
-						.setView(ajoutGroupe)
-						.setNegativeButton("Annuler", null)
-						.setPositiveButton("Changer", handlerHoraire)
-						.show();
+					// Quand un utilisateur accepte un ami il est automatiquement placer dans Mes amis
+					
+					// on accepter l'ami sur le web service
+					// TODO : faire le call avec le vrai username et password de l'utilisateur
+					new AsyncHttpGet().execute("http://www.appmeetup.appspot.com/add-friend?moi=Mar2c&password=motDePasse&ajoute="+ExpListItems.get(group).getItem(child).getName());
+					
+					// on met à jour la liste
+					ListeAmiModel amiTempo = FragmentAmis.this.ExpListItems.get(group).getItem(child);
+					FragmentAmis.this.ExpListItems.get(group).getItems().remove(child);
+					
+					//Parcours de tout les groupes
+					ArrayList<ListeGroupeModel> toutLesGroupes = FragmentAmis.this.ExpListItems;
+					
+					for (ListeGroupeModel expandListGroup : toutLesGroupes) {
+						//Si le group est le même que celui entré on met l'utilisateur dans ce groupe
+						if(expandListGroup.getName().toString().equalsIgnoreCase("Mes amis")) {
+							
+							ArrayList<ListeAmiModel> listeAmiTempo = expandListGroup.getItems();
+							listeAmiTempo.add(amiTempo);
+							expandListGroup.setItems(listeAmiTempo);
+							
+						}
+					}
+					
+					FragmentAmis.this.ExpListItems = toutLesGroupes;
+					
+					//Actualisation
+					ExpAdapter = new ExpandListAdapter(rootView.getContext(), FragmentAmis.this.ExpListItems);
+					ExpandList.setAdapter(ExpAdapter);
+					
+					
+					
 					return true;
 				case R.id.menu_refuser:
 					//Supprimer un n'ami
@@ -241,36 +282,34 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 	}
     
     public ArrayList<ListeGroupeModel> SetStandardGroups() {
-    	
-    	// Donnée hard-coded
     	listeGroupe = new ArrayList<ListeGroupeModel>();
     	listeAmi = new ArrayList<ListeAmiModel>();
     	
     	ListeGroupeModel gru1 = new ListeGroupeModel();
-        gru1.setName("Vos demandes d'amitié");
-        ListeAmiModel ch1_1 = new ListeAmiModel("LCD - Accepter", null);
-        listeAmi.add(ch1_1);
-        ListeAmiModel ch1_2 = new ListeAmiModel("Judith - En attente", null);
-        listeAmi.add(ch1_2);
-        ListeAmiModel ch1_3 = new ListeAmiModel("Gilles - Refuser", null);
-        listeAmi.add(ch1_3);
+        gru1.setName("Demandes d'ami");
         gru1.setItems(listeAmi);
         listeAmi = new ArrayList<ListeAmiModel>();
         
         ListeGroupeModel gru2 = new ListeGroupeModel();
-        gru2.setName("Famille");
-        ListeAmiModel ch2_1 = new ListeAmiModel("Francis", null);
-        listeAmi.add(ch2_1);
-        ListeAmiModel ch2_2 = new ListeAmiModel("Maman", null);
-        listeAmi.add(ch2_2);
-        ListeAmiModel ch2_3 = new ListeAmiModel("Papa", null);
-        listeAmi.add(ch2_3);
+        gru2.setName("Mes amis");
         gru2.setItems(listeAmi);
         listeGroupe.add(gru1);
         listeGroupe.add(gru2);
         
         return listeGroupe;
     }
+    
+	public static String convertInputStreamToString(InputStream inputStream) throws IOException{
+	    BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
+	    String line = "";
+	    String result = "";
+	    while((line = bufferedReader.readLine()) != null)
+	        result += line;
+	
+	    inputStream.close();
+	    return result;
+	
+	}
     
     /**
      * Gestion de l'ajout de groupe
@@ -384,33 +423,9 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 		 */
 		@Override
 		public void onClick(DialogInterface dialog, int which) {
-			
-			//Création d'une nouvelle liste d'ami
-	    	listeAmi = new ArrayList<ListeAmiModel>();
-	        
-	        //On va chercher tout les amis du groupe
-	        ArrayList<ListeAmiModel> toutLesAmis = ExpListItems.get(0).getItems();
-	        for (ListeAmiModel ami : toutLesAmis) {
-	        	//On rajoute tout les amis du groupe dans la liste d'ami (pour ne pas les perdre)
-	        	listeAmi.add(ami);
-			}
-	        
-	        //Création d'un nouvel ami
-	        ListeAmiModel nouvelAmi = new ListeAmiModel(m_txtGroupe.getText().toString(), null);
-	        listeAmi.add(nouvelAmi);
-	        
 	        //Ajout du nouvel ami dans le web service
 	        // TODO faire que c'est l'utilisateur qui est connecter qui fait la demande (avec son mot de passe aussi)
 	        new AsyncHttpGet().execute("http://appmeetup.appspot.com/ask-friend?moi=Marc&password=motDePasse&demande="+m_txtGroupe.getText().toString());
-	        
-	        //On met à jour la liste d'ami dans le groupe
-	        ExpListItems.get(0).setItems(listeAmi);
-	        
-	        //On rafraichit l'affichage
-	        ExpAdapter = new ExpandListAdapter(rootView.getContext(), ExpListItems);
-	        ExpandList.setAdapter(ExpAdapter);
-	        
-	        
 		}
 	}
 	
@@ -445,7 +460,7 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 			
 			String nomGroupe = m_txtGroupe.getText().toString();
 			
-			if (!nomGroupe.equalsIgnoreCase("Vos demandes d'amitié") &&
+			if (!nomGroupe.equalsIgnoreCase("Demandes d'ami") && !nomGroupe.equalsIgnoreCase("Mes amis") &&
 				!nomGroupe.trim().equalsIgnoreCase(""))
 			{
 				//Changement du nom
@@ -491,18 +506,20 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 		@Override
 		public void onClick(DialogInterface dialog, int which) {
 			
-			String nomGroupe = m_txtGroupe.getText().toString();
+			String nomGroupe = this.m_txtGroupe.getText().toString();
 			
-			if (!nomGroupe.equalsIgnoreCase("Vos demandes d'amitié") &&
+			if (!nomGroupe.equalsIgnoreCase("Demandes d'ami") && !nomGroupe.equalsIgnoreCase("Mes amis") &&
 				!nomGroupe.trim().equalsIgnoreCase(""))
 			{
-				ListeAmiModel amiTempo = ExpListItems.get(m_ancienGroupe).getItem(m_ancienAmi);
-				ExpListItems.get(m_ancienGroupe).getItems().remove(m_ancienAmi);
+				
+				ListeAmiModel amiTempo = FragmentAmis.this.ExpListItems.get(this.m_ancienGroupe).getItem(this.m_ancienAmi);
+				FragmentAmis.this.ExpListItems.get(this.m_ancienGroupe).getItems().remove(this.m_ancienAmi);
 				
 				boolean trouve = false;
-		        
+			
 				//Parcours de tout les groupes
-				ArrayList<ListeGroupeModel> toutLesGroupes = ExpListItems;
+				ArrayList<ListeGroupeModel> toutLesGroupes = FragmentAmis.this.ExpListItems;
+				
 				for (ListeGroupeModel expandListGroup : toutLesGroupes) {
 					//Si le group est le même que celui entré on met l'utilisateur dans ce groupe
 					if(expandListGroup.getName().toString().equalsIgnoreCase(nomGroupe) && !trouve) {
@@ -516,8 +533,7 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 				}
 				//Si on n'a pas trouver le groupe on le rajoute et on met l'user dedans
 				if(!trouve) {
-					listeGroupe = new ArrayList<ListeGroupeModel>();
-			    	listeAmi = new ArrayList<ListeAmiModel>();
+					ArrayList<ListeAmiModel> listeAmi = new ArrayList<ListeAmiModel>();
 			    	listeAmi.add(amiTempo);
 			    	
 			        ListeGroupeModel gru1 = new ListeGroupeModel();
@@ -530,9 +546,8 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 				} else {
 					ExpListItems = toutLesGroupes;
 				}
-				
 				//Actualisation
-				ExpAdapter = new ExpandListAdapter(rootView.getContext(), ExpListItems);
+				ExpAdapter = new ExpandListAdapter(rootView.getContext(), FragmentAmis.this.ExpListItems);
 				ExpandList.setAdapter(ExpAdapter);
 			} else {
 				Toast.makeText(rootView.getContext(), "Vous ne pouvez pas mettre votre ami dans ce groupe", Toast.LENGTH_LONG).show();
@@ -733,4 +748,99 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
             return new ListeGroupeModel[size];
         }
     };
+    
+    
+    /******************
+     * Call asyncrone
+     * @author Marcleking
+     *
+     */
+    public class AsyncGetAmi extends AsyncTask<String, Void, ArrayList<String>> {
+	    public String getHttpRequest(String url){
+	        InputStream inputStream = null;
+	        String reponse = "";
+	        try {
+	            HttpClient httpclient = new DefaultHttpClient();
+	            
+	            HttpResponse response = httpclient.execute(new HttpGet(url));
+	            inputStream = response.getEntity().getContent();
+	            reponse = convertInputStreamToString(inputStream);
+	 
+	        } catch (Exception e) {
+	        	reponse = e.getMessage();
+	        }
+	 
+	        return reponse;
+	    }
+		
+	    @Override
+	    protected ArrayList<String> doInBackground(String... url) {
+	    	
+	    	ArrayList<String> reponse = new ArrayList<String>();
+	    	
+	    	for (int i = 0; i < url.length; i++) {
+	    		reponse.add(getHttpRequest(url[i]));
+	    	}
+	    	
+	        return reponse;
+	    }
+	    
+	    @Override
+	    protected void onPostExecute(java.util.ArrayList<String> result) {
+
+			
+	        ExpandList = (ExpandableListView) getView().findViewById(R.id.ExpList);
+			listeGroupe = new ArrayList<ListeGroupeModel>();
+	    	listeAmi = new ArrayList<ListeAmiModel>();
+	    	
+	    	for (String info : result) {
+	    		try {
+	    			JSONObject mesAmis = new JSONObject(info);
+					JSONArray demandeAmi = mesAmis.getJSONArray("demande");
+					JSONArray ami = mesAmis.getJSONArray("amis");
+					
+					ListeGroupeModel groupeDemande = new ListeGroupeModel();
+					groupeDemande.setName("Demandes d'ami");
+					for (int i = 0; i < demandeAmi.length(); i++) {
+						ListeAmiModel unAmi = new ListeAmiModel(demandeAmi.getString(i), null);
+				        listeAmi.add(unAmi);
+					}
+					groupeDemande.setItems(listeAmi);
+					
+					listeAmi = new ArrayList<ListeAmiModel>();
+					
+					ListeGroupeModel amiGroupe = new ListeGroupeModel();
+					amiGroupe.setName("Mes amis");
+					for (int i = 0; i < ami.length(); i++) {
+						ListeAmiModel unAmi = new ListeAmiModel(ami.getString(i), null);
+				        listeAmi.add(unAmi);
+					}
+					amiGroupe.setItems(listeAmi);
+					
+					listeGroupe.add(groupeDemande);
+					listeGroupe.add(amiGroupe);
+	    		} catch (Exception e) {}
+	    	}
+	    	
+	    	ExpAdapter = new ExpandListAdapter(rootView.getContext(), listeGroupe);
+	        ExpandList.setAdapter(ExpAdapter);
+	        
+	        FragmentAmis.this.ExpListItems = listeGroupe;
+	    	
+	    }
+	    
+
+		private String convertInputStreamToString(InputStream inputStream) throws IOException{
+		    BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
+		    String line = "";
+		    String result = "";
+		    while((line = bufferedReader.readLine()) != null)
+		        result += line;
+		
+		    inputStream.close();
+		    return result;
+		
+		}
+	}
+
 }

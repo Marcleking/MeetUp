@@ -11,7 +11,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import android.os.AsyncTask;
 
-public class AsyncHttpGet extends AsyncTask<String, Void, ArrayList<String>> {	
+public class AsyncHttpGet extends AsyncTask<String, Void, ArrayList<String>> {
     public static String getHttpRequest(String url){
         InputStream inputStream = null;
         String reponse = "";
