@@ -16,7 +16,8 @@ package com.bouchardm.meetup;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.bouchardm.meetup.classes.network;
-import com.bouchardm.meetup.classes.personne;
+import com.bouchardm.meetup.sqlite.Personne;
+import com.bouchardm.meetup.sqlite.PersonneDataSource;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.SignInButton;
@@ -33,6 +34,7 @@ import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.provider.Contacts.People;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -130,6 +132,9 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		if (savedInstanceState != null) {
 			mSignInProgress = savedInstanceState.getInt(SAVED_PROGRESS,
 					STATE_DEFAULT);
+			
+			activeFragment = getSupportFragmentManager().findFragmentByTag("fragment");
+			getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, activeFragment,"fragment").commit();
 		}
 	}
 
@@ -162,11 +167,11 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		switch(position){
 		// Horaire
 		case 1:
-			Fragment horaireFragment = new FragmentHoraire();
-			activeFragment = horaireFragment;
-			fragmentManager = getSupportFragmentManager();
-			fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment).commit();
-			//this.startActivity(new Intent(this, Horaire.class));
+			//Fragment horaireFragment = new FragmentHoraire();
+			//activeFragment = horaireFragment;
+			//fragmentManager = getSupportFragmentManager();
+			//fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment,"fragment").commit();
+			this.startActivity(new Intent(this, Horaire.class));
 			break;
 		// MeetUp
 		case 2:
@@ -178,13 +183,13 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 			break;
 		// Amis
 		case 3:
-			//this.startActivity(new Intent(this, Amis.class));
+			this.startActivity(new Intent(this, Amis.class));
 			
-			Fragment friendFragment = new FragmentAmis();
-			activeFragment = friendFragment;
-			((FragmentAmis) friendFragment).setmGoogleApiClient(mGoogleApiClient);
-			fragmentManager = getSupportFragmentManager();
-			fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment).commit();
+			//Fragment friendFragment = new FragmentAmis();
+			//activeFragment = friendFragment;
+			//((FragmentAmis) friendFragment).setmGoogleApiClient(mGoogleApiClient);
+			//fragmentManager = getSupportFragmentManager();
+			//fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment,"fragment").commit();
 			
 			
 			break;
@@ -218,24 +223,31 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putInt(SAVED_PROGRESS, mSignInProgress);
+		Log.i(TAG,"onSave");
 		if(activeFragment != null){
-			activeFragment.onSaveInstanceState(outState);
+			Log.i(TAG,"onSaveHasFragment");
+			//activeFragment.onSaveInstanceState(outState);
 			getSupportFragmentManager().putFragment(outState, "fragment", activeFragment);
 		}
 	}
 	
 	@Override
 	protected void onRestoreInstanceState(Bundle inState){
-		super.onSaveInstanceState(inState);
-		if(activeFragment != null){
-			activeFragment = getSupportFragmentManager().getFragment(inState, "fragment");
-			FragmentManager fragmentManager;
-			fragmentManager = getSupportFragmentManager();
-			fragmentManager.beginTransaction().replace(R.id.content_frame, activeFragment).commit();
-		}
+		super.onRestoreInstanceState(inState);
+		Log.i(TAG,"onRestore");
+		
+		Log.i(TAG,"onRestoreHasFragment");
+		activeFragment = getSupportFragmentManager().getFragment(inState, "fragment");
+		FragmentManager fragmentManager;
+		fragmentManager = getSupportFragmentManager();
+		fragmentManager.beginTransaction().replace(R.id.content_frame, activeFragment).commit();
+		
 	}
 	
 	private void initMainActivity(){
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setHomeButtonEnabled(true);
+		
 		mDrawer = (DrawerLayout)findViewById(R.id.drawer_layout);
 		mDrawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 		initLeftMenu();
@@ -276,6 +288,27 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		this.mLeftDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 	}
 	
+	/**
+     * When using the ActionBarDrawerToggle, you must call it during
+     * onPostCreate() and onConfigurationChanged()...
+     */
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        if(mGoogleApiClient.isConnected()){
+        	mLeftDrawerToggle.syncState();
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Pass any configuration change to the drawer toggles
+        mLeftDrawerToggle.onConfigurationChanged(newConfig);
+    }
+	
 	/*
 	 * onConnected is called when our Activity successfully connects to Google
 	 * Play services. onConnected indicates that an account was selected on the
@@ -290,19 +323,29 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		user = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
 		
 		// Vérification de l'existance de l'usager dans la BD locale
-		personne personne = new personne(this);
-		personne.open();
-		if(!personne.userExisting(user.getId())){
-			// Ajout de l'usager dans la BD locale
-			personne.insert(user.getId());
-			// Ajout de l'usager dans le WebService
+		PersonneDataSource dataSource = new PersonneDataSource(this);
+		dataSource.open();
+		
+		if(!dataSource.userExisting(user.getId())){
+			Log.i(TAG,"Ajout de l'utilisateur");
 			
+			Personne nouvelUsager = new Personne(user.getId());
+			
+			// Ajout de l'usager dans la BD locale
+			int newId = dataSource.insert(nouvelUsager);
+			
+			Log.i(TAG,"New id : " + newId);
+			
+			// Ajout de l'usager dans le WebService
 			network.addUser ajoutUsager = new network.addUser();
 			ajoutUsager.setP_user(user);
-			ajoutUsager.setP_sha1(personne.getConnectedPersonSecurity(user.getId()));
-			ajoutUsager.execute();
-			
+			ajoutUsager.setP_sha1(nouvelUsager.get_securityNumber());
+			ajoutUsager.execute((Void)null);
 		}
+		
+		dataSource.close();
+		
+
 
 		// this.startActivity(new Intent(this, MainActivity.class));
 		setContentView(R.layout.activity_main);

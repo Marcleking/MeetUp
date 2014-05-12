@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,11 +29,13 @@ import com.google.android.gms.plus.model.people.Person;
 
 public class network {
 	
-	public static class addUser extends AsyncTask<String,String, JSONObject>{
+	public static class addUser extends AsyncTask<Void,Void, String>{
 		public String p_sha1;
 		public Person p_user;
 		
 		public String message;
+		
+		public HttpClient m_ClientHttp = new DefaultHttpClient();
 		
 		public String getP_sha1() {
 			return p_sha1;
@@ -50,34 +54,50 @@ public class network {
 		}
 
 		@Override
-		protected JSONObject doInBackground(String... params) {
-			JSONParser parser = new JSONParser();
-			String url = "http://appmeetup.appspot.com/add-user?username=" + p_user.getId() + 
-					"&password=" + p_sha1 +
-					"&nom=" + p_user.getName().getFamilyName() + 
-					"&prenom=" + p_user.getName().getGivenName();
-			JSONObject json = parser.getJSONFromUrl(url);
-			return json;
+		protected void onPreExecute(){
+			Log.i("AddUser","preExecute");
 		}
 		
 		@Override
-		protected void onPostExecute(JSONObject json){
+		protected String doInBackground(Void... unused) {
+			
+			String googleKey = "";
+			
+			String serviceCall = "/add-user?username=" + p_user.getId() + 
+					"&password=" + p_sha1 +
+					"&nom=" + p_user.getName().getFamilyName() + 
+					"&prenom=" + p_user.getName().getGivenName();
+			
 			try{
-				JSONArray jsonArray = new JSONArray (json.toString());
-				for (int i = 0; i < jsonArray.length(); i++){
-					JSONObject jsonObject = jsonArray.getJSONObject(i);
-					message = jsonObject.getString("result");
-				}
+				URI uri = new URI("HTTP","appmeetup.appspot.com", "/add-user", 
+						"username=" + p_user.getId() + 
+						"&password=" + p_sha1 +
+						"&nom=" + p_user.getName().getFamilyName() + 
+						"&prenom=" + p_user.getName().getGivenName() , null );
+				
+				Log.i("AddUser", "URL : " + uri.toString());
+				HttpGet getMethod = new HttpGet(uri);
+				
+				String body = m_ClientHttp.execute(getMethod, new BasicResponseHandler());
+				Log.i("AddUser", "Résultat : " + body);
+				
+				googleKey = JSONParser.parseGoogleKey(body);
 			}
 			catch(Exception e){
-				message = "error";
-				e.printStackTrace();
+				Log.i("AddUser", "Erreur : " + e.getMessage());
 			}
+			
+			return googleKey;
+		}
+		
+		@Override
+		protected void onPostExecute(String gKey){
+			Log.i("AddUser", "PostExecute : " + gKey);
 		}
 		
 	}
 	
-	public static class askForFriend extends AsyncTask<String,String, JSONObject>{
+	/*public static class askForFriend extends AsyncTask<String,String, JSONObject>{
 		
 		public Person p_user;
 		public String p_nom;
@@ -136,5 +156,5 @@ public class network {
 		protected void onPostExecute(JSONObject json){
 			
 		}
-	}
+	}*/
 }
