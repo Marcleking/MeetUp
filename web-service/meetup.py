@@ -63,88 +63,181 @@ class AddUser(webapp.RequestHandler):
             logging.error(ex)
             self.error(500)
 
-class GetUsers(webapp.RequestHandler)
-	def get(self):
-		try:
-			self.response.headers["Content-Type"] = 'application/json'
-			q = Utilisateur.all()
-			q.filter('username !=', self.request.get("username"))
-			result = q.get(keys_only=True)
-			
-			if result is not None:
-				listePers = []
-				for p in result:
-					persInJson = to_dict(p.username)
-					listePers.append(persInJson)
-			
-				response = {
-					MSG_RESULT : MSG_SUCCESS,
-					'personnes' : listePers
-				}
-			else:
-				reponse = {
-					MSG_RESULT : MSG_ERROR,
-					'message' : 'Il n\'y a pas d\'autres usagers.'
-				}
-			self.response.out.write(json.dumps(response))
-		
-		except Exception, ex:
-			logging.error(ex)
-			self.error(500)
-			
+
+class AddCalendar(webapp.RequestHandler):
+    def get(self):
+        try:
+            listUser = Utilisateur.all()
+            listUser.filter("username =", self.request.get("moi"))
+            me = listUser.get()
+            
+            #On s'assure que c'est les bonnes personnes
+            if me is not None and me.password == self.request.get("password"):
+                    
+                #On fait la demande d'amitier uniquement si elle n'est pas déjà la
+                continuer = 1
+                for calendar in me.listCalendar:
+                    if self.request.get("ajoute") == calendar:
+                        continuer = 0
+                
+                if continuer:
+                    me.listCalendar.append(self.request.get("ajoute"))
+                    me.put()
+                
+                
+                response = {
+                    MSG_RESULT : MSG_SUCCESS,
+                    "message" : "Agenda ajouté!"
+                }
+            
+            self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
+            self.response.out.write(json.dumps(response))
+            
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+            
+class RemoveCalendar(webapp.RequestHandler):
+    def get(self):
+        try:
+            listUser = Utilisateur.all()
+            listUser.filter("username =", self.request.get("moi"))
+            me = listUser.get()
+            
+            #On s'assure que c'est les bonnes personnes
+            if me is not None and me.password == self.request.get("password"):
+
+                #On fait la demande d'amitier uniquement si elle n'est pas déjà la
+                listeCalendar = []
+                
+                for calendar in me.listCalendar:
+                    if self.request.get("retire") != calendar:
+                        listeCalendar.append(calendar)
+                
+               
+                me.listCalendar = listeCalendar
+                me.put()
+                
+                
+                response = {
+                    MSG_RESULT : MSG_SUCCESS,
+                    "message" : "Agenda retiré!"
+                }
+            
+            self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
+            self.response.out.write(json.dumps(response))
+            
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+            
+class ListCalendar(webapp.RequestHandler):
+    def get(self):
+        try:
+            listUser = Utilisateur.all()
+            listUser.filter("username =", self.request.get("username"))
+            user  = listUser.get()
+            
+            response = {
+                MSG_RESULT : MSG_SUCCESS,
+                "message" : "Agenda retiré!",
+                "calendars" : user.listCalendar
+            }
+            
+            self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
+            self.response.out.write(json.dumps(response))
+            
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+
+class GetUsers(webapp.RequestHandler):
+    def get(self):
+        try:
+            q = Utilisateur.all()
+            q.filter('username !=', self.request.get("username"))
+            result = q.run()
+            
+            if result is not None:
+                
+                listePers = []
+                for p in result:
+                    
+                    #persInJson = to_dict(p.username)
+                    listePers.append(p.username)
+            
+                response = {
+                    MSG_RESULT : MSG_SUCCESS,
+                    'personnes' : listePers
+                }
+            else:
+                response = {
+                    MSG_RESULT : MSG_SUCCESS,
+                    'message' : 'Il n\'y a pas d\'autres usagers.'
+                }
+            
+            self.response.headers["Content-Type"] = 'application/json'
+            self.response.out.write(json.dumps(response))
+        
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+            
 class GetFriendList(webapp.RequestHandler):
-	def get(self):
-		try:
-			self.response.headers["Content-Type"] = 'application/json'
-			q = Utilisateur.all()
-			q.filter('username =', self.request.get("username"))
-			me = q.get(keys_only=True)
-			
-			if me is not None:
-				listeAmis = me.listAmi
-				response = {
-					MSG_RESULT : MSG_SUCCESS,
-					'amis' : listeAmis
-				}
-			else:
-				response = {
-					MSG_RESULT : MSG_ERROR.
-					'message' : 'L\'utilisateur n\'existe pas.'
-				}
-			
-			self.response.out.write(json.dumps(response))
-		
-		except Exception, ex:
-			logging.error(ex)
-			self.error(500)
-				
+    def get(self):
+        try:
+            q = Utilisateur.all()
+            q.filter('username =', self.request.get("username"))
+            me = q.get()
+            
+            if me is not None:
+                listeAmis = me.listAmi
+                response = {
+                    MSG_RESULT : MSG_SUCCESS,
+                    'amis' : listeAmis,
+                    'demande' : me.listDemande
+                }
+            else:
+                response = {
+                    MSG_RESULT : MSG_ERROR,
+                    'message' : 'L\'utilisateur n\'existe pas.'
+                }
+            
+            
+            self.response.headers["Content-Type"] = 'application/json'
+            self.response.out.write(json.dumps(response))
+        
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+                
 class GetListeDemandes(webapp.RequestHandler):
-	def get(self):
-		try:
-			self.response.headers["Content-Type"] = 'application/json'
-			q = Utilisateur.all()
-			q.filter('username =', self.request.get("username"))
-			me = q.get(keys_only=True)
-			
-			if me is not None:
-				listeDemandes = me.listDemande
-				reponse = {
-					MSG_RESULT : MSG_SUCCESS,
-					'demandes' : listeDemandes
-				}
-			else:
-				response = {
-					MSG_RESULT : MSG_ERROR,
-					'message' : 'L\'utilisateur n\'existe pas.'
-				}
-			
-			self.response.out.write(json.dumps(response))
-			
-		except Exception, ex:
-			logging.error(ex)
-			self.error(500)
-			
-class AskFriend(webapp.RedirectHandler):
+    def get(self):
+        try:
+            q = Utilisateur.all()
+            q.filter('username =', self.request.get("username"))
+            me = q.get()
+            
+            if me is not None:
+                listeDemandes = me.listDemande
+                response = {
+                    MSG_RESULT : MSG_SUCCESS,
+                    'demandes' : listeDemandes
+                }
+            else:
+                response = {
+                    MSG_RESULT : MSG_ERROR,
+                    'message' : 'L\'utilisateur n\'existe pas.'
+                }
+            
+            self.response.headers["Content-Type"] = 'application/json'
+            self.response.out.write(json.dumps(response))
+            
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+            
+class AskFriend(webapp.RequestHandler):
     def get(self):
         try:
             listUser = Utilisateur.all()
@@ -161,6 +254,7 @@ class AskFriend(webapp.RedirectHandler):
                 if me.username != theFriend.username: 
 
                     listeDemande = theFriend.listDemande
+                    listNotif = theFriend.listNotification
                     
                     #On fait la demande d'amitier uniquement si elle n'est pas déjà la
                     continuer = 1
@@ -170,10 +264,12 @@ class AskFriend(webapp.RedirectHandler):
                     
                     if continuer:
                         listeDemande.append(me.username)
-                    
-                    theFriend.listDemande = listeDemande
-                    
+                        theFriend.listDemande = listeDemande
+                        
+                        theFriend.listNotification.append('Vous avez une nouvelle demande d\'ami!')
+                        
                     theFriend.put()
+                    
                     
                     response = {
                         MSG_RESULT : MSG_SUCCESS,
@@ -584,12 +680,16 @@ class AddNotif(webapp.RequestHandler):
             
 class ReadNotif(webapp.RequestHandler):
     def get(self):
+         
         try:
             listUser = Utilisateur.all()
             listUser.filter("username =", self.request.get("moi"))
             me = listUser.get()
+
             
-            if me.password == self.resquest.get("password"):
+            
+            
+            if me.password == self.request.get("password"):
                 #On va chercher les notifications puis on les supprimes puisqu'on les a lu
                 listeNotification = me.listNotification
                 me.listNotification = []
@@ -612,22 +712,25 @@ class ReadNotif(webapp.RequestHandler):
 
 
 def configurerHandler():
-    application = webapp.WSGIApplication([('/',              MainPageHandler),
-                                          ('/add-user',      AddUser),
-										  ('/get-users',	 GetUsers),
-										  ('/get-friends',	 GetFrienList),
-										  ('/get-demandes',	 GetListeDemandes),
-                                          ('/ask-friend',    AskFriend),
-                                          ('/add-friend',    AddFriend),
-                                          ('/list-meetUp',   ListMeetUp),
-                                          ('/add-meetUp',    AddMeetUp),
-                                          ('/invite-friend', InviteUserAtMeetUp),
-                                          ('/accept-meetUp', AcceptInviteMeetUp),
-                                          ('/delete-meetUp', DeleteMeetUp),
+    application = webapp.WSGIApplication([('/',                   MainPageHandler),
+                                          ('/add-user',           AddUser),
+                                          ('/add-calendar',       AddCalendar),
+                                          ('/delete-calendar',    RemoveCalendar),
+                                          ('/get-calendars',      ListCalendar),
+										  ('/get-users',	      GetUsers),
+										  ('/get-friends',	      GetFriendList),
+										  ('/get-demandes',	      GetListeDemandes),
+                                          ('/ask-friend',         AskFriend),
+                                          ('/add-friend',         AddFriend),
+                                          ('/list-meetUp',        ListMeetUp),
+                                          ('/add-meetUp',         AddMeetUp),
+                                          ('/invite-friend',      InviteUserAtMeetUp),
+                                          ('/accept-meetUp',      AcceptInviteMeetUp),
+                                          ('/delete-meetUp',      DeleteMeetUp),
                                           ('/delete-user-meetUp', removeUserFromMeetUp),
-                                          ('/add-notif',     AddNotif),
-                                          ('/read-notif',    ReadNotif),
-                                          ('/delete-friend', DeleteFriend)],
+                                          ('/add-notif',          AddNotif),
+                                          ('/read-notif',         ReadNotif),
+                                          ('/delete-friend',      DeleteFriend)],
                                          debug=True)
     util.run_wsgi_app(application)
     
