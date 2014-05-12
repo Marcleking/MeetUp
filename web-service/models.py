@@ -13,6 +13,7 @@ class Utilisateur(db.Model):
     listMeetUp = db.StringListProperty()
     listDemandeMeetUp = db.StringListProperty()
     listNotification = db.StringListProperty()
+    listCalendar = db.StringListProperty()
     
 class MeetUp(db.Model):
     nom = db.StringProperty()

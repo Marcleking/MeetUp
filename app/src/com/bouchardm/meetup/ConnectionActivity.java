@@ -23,9 +23,11 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.drive.Drive;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.PlusClient;
 import com.google.android.gms.plus.model.people.Person;
+import com.google.api.services.calendar.*;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -38,6 +40,9 @@ import android.provider.Contacts.People;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.*;
 
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -118,7 +123,8 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		super.onCreate(savedInstanceState);
 
 		mGoogleApiClient = buildGoogleApiClient();
-
+		
+		
 		if (!mGoogleApiClient.isConnected()) {
 			setContentView(R.layout.activity_connection);
 		} else {
@@ -140,6 +146,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		return new GoogleApiClient.Builder(this).addConnectionCallbacks(this)
 				.addOnConnectionFailedListener(this).addApi(Plus.API, null)
 				.addScope(Plus.SCOPE_PLUS_LOGIN).build();
+		
 	}
 
 	@Override

@@ -63,6 +63,94 @@ class AddUser(webapp.RequestHandler):
             logging.error(ex)
             self.error(500)
 
+
+class AddCalendar(webapp.RequestHandler):
+    def get(self):
+        try:
+            listUser = Utilisateur.all()
+            listUser.filter("username =", self.request.get("moi"))
+            me = listUser.get()
+            
+            #On s'assure que c'est les bonnes personnes
+            if me is not None and me.password == self.request.get("password"):
+                    
+                #On fait la demande d'amitier uniquement si elle n'est pas déjà la
+                continuer = 1
+                for calendar in me.listCalendar:
+                    if self.request.get("ajoute") == calendar:
+                        continuer = 0
+                
+                if continuer:
+                    me.listCalendar.append(self.request.get("ajoute"))
+                    me.put()
+                
+                
+                response = {
+                    MSG_RESULT : MSG_SUCCESS,
+                    "message" : "Agenda ajouté!"
+                }
+            
+            self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
+            self.response.out.write(json.dumps(response))
+            
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+            
+class RemoveCalendar(webapp.RequestHandler):
+    def get(self):
+        try:
+            listUser = Utilisateur.all()
+            listUser.filter("username =", self.request.get("moi"))
+            me = listUser.get()
+            
+            #On s'assure que c'est les bonnes personnes
+            if me is not None and me.password == self.request.get("password"):
+
+                #On fait la demande d'amitier uniquement si elle n'est pas déjà la
+                listeCalendar = []
+                
+                for calendar in me.listCalendar:
+                    if self.request.get("retire") != calendar:
+                        listeCalendar.append(calendar)
+                
+               
+                me.listCalendar = listeCalendar
+                me.put()
+                
+                
+                response = {
+                    MSG_RESULT : MSG_SUCCESS,
+                    "message" : "Agenda retiré!"
+                }
+            
+            self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
+            self.response.out.write(json.dumps(response))
+            
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+            
+class ListCalendar(webapp.RequestHandler):
+    def get(self):
+        try:
+            listUser = Utilisateur.all()
+            listUser.filter("username =", self.request.get("username"))
+            user  = listUser.get()
+            
+            response = {
+                MSG_RESULT : MSG_SUCCESS,
+                "message" : "Agenda retiré!",
+                "calendars" : user.listCalendar
+            }
+            
+            self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
+            self.response.out.write(json.dumps(response))
+            
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+
 class GetUsers(webapp.RequestHandler):
     def get(self):
         try:
@@ -624,22 +712,25 @@ class ReadNotif(webapp.RequestHandler):
 
 
 def configurerHandler():
-    application = webapp.WSGIApplication([('/',              MainPageHandler),
-                                          ('/add-user',      AddUser),
-										  ('/get-users',	 GetUsers),
-										  ('/get-friends',	 GetFriendList),
-										  ('/get-demandes',	 GetListeDemandes),
-                                          ('/ask-friend',    AskFriend),
-                                          ('/add-friend',    AddFriend),
-                                          ('/list-meetUp',   ListMeetUp),
-                                          ('/add-meetUp',    AddMeetUp),
-                                          ('/invite-friend', InviteUserAtMeetUp),
-                                          ('/accept-meetUp', AcceptInviteMeetUp),
-                                          ('/delete-meetUp', DeleteMeetUp),
+    application = webapp.WSGIApplication([('/',                   MainPageHandler),
+                                          ('/add-user',           AddUser),
+                                          ('/add-calendar',       AddCalendar),
+                                          ('/delete-calendar',    RemoveCalendar),
+                                          ('/get-calendars',      ListCalendar),
+										  ('/get-users',	      GetUsers),
+										  ('/get-friends',	      GetFriendList),
+										  ('/get-demandes',	      GetListeDemandes),
+                                          ('/ask-friend',         AskFriend),
+                                          ('/add-friend',         AddFriend),
+                                          ('/list-meetUp',        ListMeetUp),
+                                          ('/add-meetUp',         AddMeetUp),
+                                          ('/invite-friend',      InviteUserAtMeetUp),
+                                          ('/accept-meetUp',      AcceptInviteMeetUp),
+                                          ('/delete-meetUp',      DeleteMeetUp),
                                           ('/delete-user-meetUp', removeUserFromMeetUp),
-                                          ('/add-notif',     AddNotif),
-                                          ('/read-notif',    ReadNotif),
-                                          ('/delete-friend', DeleteFriend)],
+                                          ('/add-notif',          AddNotif),
+                                          ('/read-notif',         ReadNotif),
+                                          ('/delete-friend',      DeleteFriend)],
                                          debug=True)
     util.run_wsgi_app(application)
     
