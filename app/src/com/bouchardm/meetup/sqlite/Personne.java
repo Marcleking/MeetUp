@@ -9,7 +9,7 @@ import java.util.Random;
 public class Personne {
 	
 	public static final int ID_NON_DEFINI = -1;
-	
+	public static final String SECURITY_NUMBER_NON_DEFINI = "";
 	// Id de la personne dans la BD locale
 	private int m_id;
 	
@@ -25,7 +25,10 @@ public class Personne {
 	
 	public Personne(String p_googleId){
 		this.m_googleId = p_googleId;
-		this.m_SecurityNumber = generateSecurityNumber(p_googleId);
+		if(!p_googleId.equals(""))
+			this.m_SecurityNumber = generateSecurityNumber(p_googleId);
+		else
+			this.m_SecurityNumber = this.SECURITY_NUMBER_NON_DEFINI; 
 		this.m_id = this.ID_NON_DEFINI;
 	}
 	
@@ -73,6 +76,10 @@ public class Personne {
 
 	public String get_securityNumber() {
 		return m_SecurityNumber;
+	}
+	
+	public void set_securityNumber(String m_securityNumber) {
+		this.m_SecurityNumber = m_securityNumber;
 	}
 
 	public int getId() {

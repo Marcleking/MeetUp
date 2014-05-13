@@ -16,11 +16,13 @@ import org.json.JSONObject;
 
 import com.bouchardm.meetup.classes.network;
 import com.bouchardm.meetup.util.AsyncHttpGet;
+import com.bouchardm.meetup.sqlite.*;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.plus.Plus;
+import com.google.android.gms.plus.model.people.Person;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -61,6 +63,8 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 	private Button btnAjoutAmi;
 	private Button btnAjoutGroupe;
 	
+	private Personne usager;
+	
 	public GoogleApiClient mGoogleApiClient;
 	
 	public GoogleApiClient getmGoogleApiClient() {
@@ -82,9 +86,13 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 		ExpandList = (ExpandableListView) rootView.findViewById(R.id.ExpList);
 		
 		ExpListItems = SetStandardGroups();
-		// TODO : faire en sorte que c'est le username de l'utilisateur
-		new AsyncGetAmi().execute("http://www.appmeetup.appspot.com/get-friends?username=Mar2c");
 		
+		PersonneDataSource dataSource = new PersonneDataSource(getActivity());
+		dataSource.open();
+		usager = dataSource.getPersonne(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient).getId());
+		dataSource.close();
+		
+		new AsyncGetAmi().execute("http://www.appmeetup.appspot.com/get-friends?username=" + usager.get_googleId());
 		
 		ExpAdapter = new ExpandListAdapter(rootView.getContext(), ExpListItems);
         ExpandList.setAdapter(ExpAdapter);
@@ -186,8 +194,7 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 					// Quand un utilisateur accepte un ami il est automatiquement placer dans Mes amis
 					
 					// on accepter l'ami sur le web service
-					// TODO : faire le call avec le vrai username et password de l'utilisateur
-					new AsyncHttpGet().execute("http://www.appmeetup.appspot.com/add-friend?moi=Mar2c&password=motDePasse&ajoute="+ExpListItems.get(group).getItem(child).getName());
+					new AsyncHttpGet().execute("http://www.appmeetup.appspot.com/add-friend?moi=" + usager.get_googleId() + "&password=" + usager.get_securityNumber() + "&ajoute="+ExpListItems.get(group).getItem(child).getName());
 					
 					// on met à jour la liste
 					ListeAmiModel amiTempo = FragmentAmis.this.ExpListItems.get(group).getItem(child);
@@ -424,8 +431,7 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 		@Override
 		public void onClick(DialogInterface dialog, int which) {
 	        //Ajout du nouvel ami dans le web service
-	        // TODO faire que c'est l'utilisateur qui est connecter qui fait la demande (avec son mot de passe aussi)
-	        new AsyncHttpGet().execute("http://appmeetup.appspot.com/ask-friend?moi=Marc&password=motDePasse&demande="+m_txtGroupe.getText().toString());
+	        new AsyncHttpGet().execute("http://appmeetup.appspot.com/ask-friend?moi=" + usager.get_googleId() + "&password=" + usager.get_securityNumber() + "&demande="+m_txtGroupe.getText().toString());
 		}
 	}
 	

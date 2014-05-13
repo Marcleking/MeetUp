@@ -71,6 +71,21 @@ public class PersonneDataSource {
 		}*/
 	}
 	
+	public Personne getPersonne(String p_googleId){
+		Cursor c = m_Db.query(TABLE_NAME, null, null, null, null, null, null);
+		boolean found = false;
+		Personne usager = null;
+		c.moveToFirst();
+		while(!c.isAfterLast() && !found){
+			if(c.getString(IDX_GOOGLEID).equals(p_googleId))
+				usager = cursorToPersonne(c);
+			c.moveToNext();
+		}
+		return usager;
+	}
+	
+	
+	
 	public void listAll(){
 		Cursor c = m_Db.query(
 	            TABLE_NAME, null, null, null, null, null, null);
@@ -84,6 +99,14 @@ public class PersonneDataSource {
 	public void removeAll() {
         m_Db.delete(TABLE_NAME, null, null);
     }
+	
+	private Personne cursorToPersonne(Cursor c){
+		Personne p = new Personne();
+		p.setId(				c.getInt(	IDX_ID));
+		p.set_googleId(			c.getString(IDX_GOOGLEID));
+		p.set_securityNumber( 	c.getString(IDX_SECURITYNUMBER));
+		return p;
+	}
 	
 	private static class PersonDbHelper extends SQLiteOpenHelper{
 		public PersonDbHelper (Context p_Context){
