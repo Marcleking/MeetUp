@@ -174,29 +174,29 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		switch(position){
 		// Horaire
 		case 1:
-			//Fragment horaireFragment = new FragmentHoraire();
-			//activeFragment = horaireFragment;
-			//fragmentManager = getSupportFragmentManager();
-			//fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment,"fragment").commit();
-			this.startActivity(new Intent(this, Horaire.class));
+			Fragment horaireFragment = new FragmentHoraire();
+			activeFragment = horaireFragment;
+			fragmentManager = getSupportFragmentManager();
+			fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment,"fragment").commit();
+			//this.startActivity(new Intent(this, Horaire.class));
 			break;
 		// MeetUp
 		case 2:
-			//Fragment meetUpFragment = new FragmentMeetUp();
-			//activeFragment = meetUpFragment;
-			//fragmentManager = getSupportFragmentManager();
-			//fragmentManager.beginTransaction().replace(R.id.content_frame,meetUpFragment).commit();
-			this.startActivity(new Intent(this, MeetUp.class));
+			Fragment meetUpFragment = new FragmentMeetUp();
+			activeFragment = meetUpFragment;
+			fragmentManager = getSupportFragmentManager();
+			fragmentManager.beginTransaction().replace(R.id.content_frame,meetUpFragment).commit();
+			//this.startActivity(new Intent(this, MeetUp.class));
 			break;
 		// Amis
 		case 3:
-			this.startActivity(new Intent(this, Amis.class));
+			//this.startActivity(new Intent(this, Amis.class));
 			
-			//Fragment friendFragment = new FragmentAmis();
-			//activeFragment = friendFragment;
-			//((FragmentAmis) friendFragment).setmGoogleApiClient(mGoogleApiClient);
-			//fragmentManager = getSupportFragmentManager();
-			//fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment,"fragment").commit();
+			Fragment friendFragment = new FragmentAmis();
+			activeFragment = friendFragment;
+			((FragmentAmis) friendFragment).setmGoogleApiClient(mGoogleApiClient);
+			fragmentManager = getSupportFragmentManager();
+			fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment,"fragment").commit();
 			
 			
 			break;
