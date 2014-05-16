@@ -140,7 +140,10 @@ class ListCalendar(webapp.RequestHandler):
             
             response = {
                 MSG_RESULT : MSG_SUCCESS,
-                "message" : "Agenda retiré!",
+                "message" : "Agenda affiché!",
+                "username" : user.username,
+                "first_name" : user.nom,
+                "last_name" : user.prenom,
                 "calendars" : user.listCalendar
             }
             

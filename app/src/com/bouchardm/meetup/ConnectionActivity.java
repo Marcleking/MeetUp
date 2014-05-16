@@ -54,6 +54,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class ConnectionActivity extends SherlockFragmentActivity implements
 		ConnectionCallbacks, OnConnectionFailedListener, View.OnClickListener {
@@ -126,12 +127,12 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 
 		mGoogleApiClient = buildGoogleApiClient();
 		
-		
 		if (!mGoogleApiClient.isConnected()) {
 			setContentView(R.layout.activity_connection);
 		} else {
 			setContentView(R.layout.activity_main);
 		}
+		
 		mSignInButton = (SignInButton) findViewById(R.id.sign_in_button);
 		mSignInButton.setOnClickListener(this);
 
@@ -259,6 +260,11 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		mDrawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 		initLeftMenu();
 		
+		Fragment horaireFragment = new FragmentAccueil();
+		activeFragment = horaireFragment;
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment,"fragment").commit();
+		
 		mTitle = mDrawerTitle = getTitle();
 		mLeftDrawerToggle = new ActionBarDrawerToggle(
 				this,
@@ -276,6 +282,8 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
                 supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
 			}
 		};
+		
+
 	}
 	
 	private void initLeftMenu() {
