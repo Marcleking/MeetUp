@@ -204,6 +204,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		case 1:
 			Fragment horaireFragment = new FragmentHoraire();
 			activeFragment = horaireFragment;
+			((FragmentHoraire) horaireFragment).setmGoogleApiClient(mGoogleApiClient);
 			fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment,"fragment").commit();
 			//this.startActivity(new Intent(this, Horaire.class));

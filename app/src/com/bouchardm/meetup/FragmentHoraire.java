@@ -18,7 +18,11 @@ import com.bouchardm.meetup.FragmentAmis.ListeAmiModel;
 import com.bouchardm.meetup.FragmentAmis.ListeGroupeModel;
 import com.bouchardm.meetup.Horaire.LigneAdapter;
 import com.bouchardm.meetup.Horaire.RowModel;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.plus.Plus;
 import com.google.api.services.calendar.Calendar.Calendars;
+import com.bouchardm.meetup.sqlite.Personne;
+import com.bouchardm.meetup.sqlite.PersonneDataSource;
 import com.bouchardm.meetup.util.*;
 
 import android.net.Uri;
@@ -56,8 +60,19 @@ public class FragmentHoraire extends ListFragment implements View.OnClickListene
 	private ArrayList<String> m_Tokens = new ArrayList<String>();
 	private ArrayList<RowModel> m_RowModels = new ArrayList<RowModel>();
 	private LigneAdapter m_adapter;
+	private Personne usager;
 	
 	private View rootView;
+	
+	public GoogleApiClient mGoogleApiClient;
+	
+	public GoogleApiClient getmGoogleApiClient() {
+		return mGoogleApiClient;
+	}
+
+	public void setmGoogleApiClient(GoogleApiClient mGoogleApiClient) {
+		this.mGoogleApiClient = mGoogleApiClient;
+	}
 	
 	public FragmentHoraire(){}
 	
@@ -80,11 +95,15 @@ public class FragmentHoraire extends ListFragment implements View.OnClickListene
             Bundle savedInstanceState) {
 		rootView = inflater.inflate(R.layout.horaire, container, false);
 		
+		PersonneDataSource dataSource = new PersonneDataSource(getActivity());
+		dataSource.open();
+		usager = dataSource.getPersonne(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient).getId());
+		dataSource.close();
+		
 		m_adapter = new LigneAdapter();
 		this.setListAdapter(m_adapter);
 		
-		// TODO : faire en sorte que sa soit le bon username
-		new AsyncGetHoraire().execute("http://www.appmeetup.appspot.com/get-calendars?username=Marc");
+		new AsyncGetHoraire().execute("http://www.appmeetup.appspot.com/get-calendars?username="+usager.get_googleId());
 		
 		return rootView;
 	}
@@ -96,7 +115,6 @@ public class FragmentHoraire extends ListFragment implements View.OnClickListene
 	public void onSaveInstanceState(Bundle p_outState) 
 	{
 		super.onSaveInstanceState(p_outState);
-		p_outState.putParcelableArrayList("rowModel", m_RowModels);
 		p_outState.putStringArrayList("token", m_Tokens);
 	}
 	
@@ -106,7 +124,6 @@ public class FragmentHoraire extends ListFragment implements View.OnClickListene
 	public void onRestoreInstanceState(Bundle p_state) 
 	{
 		if (p_state != null) {
-			m_RowModels = p_state.getParcelableArrayList("rowModel");
 			m_Tokens = p_state.getStringArrayList("token");
 			
 			m_adapter = new LigneAdapter();
@@ -175,15 +192,19 @@ public class FragmentHoraire extends ListFragment implements View.OnClickListene
 	 * @author Marcleking
 	 *
 	 */
-	public static class RowModel implements Parcelable{
+	public static class RowModel{
 		private String m_Content;
 		private boolean m_isActivate;
 		private String m_id;
+		private String m_idCompteGoogle;
+		private String m_passwordCompteGoogle;
 		
-		public RowModel(String content, boolean activate, String id) {
+		public RowModel(String content, boolean activate, String id, String idCompteGoogle, String passwordCompteGoogle) {
 			this.m_Content = content;
 			this.m_id = id;
 			this.setIsActivate(activate);
+			this.m_idCompteGoogle = idCompteGoogle;
+			this.m_passwordCompteGoogle = passwordCompteGoogle;
 		}
 		
 		public String getContent() {
@@ -201,45 +222,16 @@ public class FragmentHoraire extends ListFragment implements View.OnClickListene
 		public void setIsActivate(boolean isActivate) {
 			this.m_isActivate = isActivate;
 			if (isActivate) {
-				// TODO : faire en sorte que sa soit avec le bon username
-				
-				
-				
-				new AsyncHttpGet().execute("http://www.appmeetup.appspot.com/add-calendar?moi=Marc&password=motDePasse&ajoute="+m_id);
+				new AsyncHttpGet().execute("http://www.appmeetup.appspot.com/add-calendar?moi="+m_idCompteGoogle+"&password="+m_passwordCompteGoogle+"&ajoute="+m_id);
 			} else {
-				// TODO : faire en sorte que sa soit avec le bon username
-				new AsyncHttpGet().execute("http://www.appmeetup.appspot.com/delete-calendar?moi=Marc&password=motDePasse&retire="+m_id);
+				new AsyncHttpGet().execute("http://www.appmeetup.appspot.com/delete-calendar?moi="+m_idCompteGoogle+"&password="+m_passwordCompteGoogle+"&retire="+m_id);
 			}
 		}
 		
 		public String getCalId() {
 			return m_id;
 		}
-
-		@Override
-		public int describeContents() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-
-		@Override
-		public void writeToParcel(Parcel dest, int flags) {
-			dest.writeString(m_Content);
-			dest.writeByte((byte) (m_isActivate ? 1 : 0));
-			dest.writeString(m_id);
-		}
 	}
-	
-	public static final Parcelable.Creator<RowModel> CREATOR = new Parcelable.Creator<RowModel>() 
-	{
-        public RowModel createFromParcel(Parcel in) {
-            return new RowModel(in.readString(), in.readByte() != 0, in.readString());
-        }
-
-        public RowModel[] newArray(int size) {
-            return new RowModel[size];
-        }
-    };
 
 	@Override
 	public void onClick(View v) {
@@ -332,11 +324,10 @@ public class FragmentHoraire extends ListFragment implements View.OnClickListene
 				    		}
 				    	}
 				    }
+
+				    m_RowModels.add(new RowModel(displayName, isActivate, ownerName, usager.get_googleId(), usager.get_securityNumber()));
 				    
-				    
-				    m_RowModels.add(new RowModel(displayName, isActivate, ownerName));
-				    
-				    // ownerName = vrai id du calendar
+				    // ownerName = vrai id du calendar 	
 				    // Toast.makeText(getActivity(), ownerName, Toast.LENGTH_LONG).show();
 				}
 			} catch (Exception e) {}
