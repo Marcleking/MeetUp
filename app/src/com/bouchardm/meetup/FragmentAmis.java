@@ -224,10 +224,14 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 					
 					return true;
 				case R.id.menu_refuser:
+					// on supprime l'ami sur le web service
+					new AsyncHttpGet().execute("http://www.appmeetup.appspot.com/delete-friend?moi=" + usager.get_googleId() + "&password=" + usager.get_securityNumber() + "&supprime="+ExpListItems.get(group).getItem(child).getName());
+					
 					//Supprimer un n'ami
 					ExpListItems.get(group).getItems().remove(child);
 					ExpAdapter = new ExpandListAdapter(rootView.getContext(), ExpListItems);
 					ExpandList.setAdapter(ExpAdapter);
+					
 					return true;
 			  }
 		//Si c'est un groupe qui a été sélectionné
