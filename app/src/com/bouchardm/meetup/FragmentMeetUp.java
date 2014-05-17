@@ -99,11 +99,6 @@ public class FragmentMeetUp extends ListFragment implements View.OnClickListener
 			}
 		}
 		
-		// Déplacé dans onViewCreated
-		//this.registerForContextMenu(this.getListView()); 
-		
-		
-		
 		return rootView;
 	}
 	
@@ -171,6 +166,12 @@ public class FragmentMeetUp extends ListFragment implements View.OnClickListener
 				m_RowInvitationModels.get(info.position).setParticipation("Participe !");
 				m_invitationAdapter = new LigneInvitationAdapter();
 				this.setListAdapter(m_invitationAdapter);
+				return true;
+			case R.id.menu_modifier:
+				return true;
+			case R.id.menu_supprimer:
+				return true;
+			case R.id.menu_voir_participants:
 				return true;
 		}
 		return super.onContextItemSelected(item);
