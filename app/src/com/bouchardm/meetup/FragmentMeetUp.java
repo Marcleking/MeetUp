@@ -2,6 +2,9 @@ package com.bouchardm.meetup;
 
 import java.util.ArrayList;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.plus.Plus;
+
 
 import android.os.Bundle;
 import android.os.Parcel;
@@ -33,6 +36,16 @@ public class FragmentMeetUp extends ListFragment implements View.OnClickListener
 	private View rootView;
 	private Button btnAjoutMeetUp;
 	
+	private GoogleApiClient mGoogleApiClient;
+	
+	public GoogleApiClient getGoogleApiClient() {
+		return mGoogleApiClient;
+	}
+
+	public void setGoogleApiClient(GoogleApiClient mGoogleApiClient) {
+		this.mGoogleApiClient = mGoogleApiClient;
+	}
+
 	public FragmentMeetUp(){}
 	
 	@Override
@@ -52,10 +65,17 @@ public class FragmentMeetUp extends ListFragment implements View.OnClickListener
 		for (String token : m_Tokens) {
 			m_RowModels.add(new RowModel(token, "Choisissez votre participation..."));
 		}
-		
-		this.registerForContextMenu(this.getListView());
+
+		// Déplacé dans onViewCreated
+		//this.registerForContextMenu(this.getListView()); 
 		
 		return rootView;
+	}
+	
+	@Override
+	public void onViewCreated(View v, Bundle savedInstanceState){
+		super.onViewCreated(v, savedInstanceState);
+		this.registerForContextMenu(this.getListView());
 	}
 	
 	/**
@@ -126,7 +146,8 @@ public class FragmentMeetUp extends ListFragment implements View.OnClickListener
 	 */
 	public void btnAjoutMeetUp(View source)
 	{
-		getActivity().startActivity(new Intent(rootView.getContext(), CreationMeetUp.class));
+		getActivity().startActivity(new Intent(rootView.getContext(), CreationMeetUp.class)
+			.putExtra("EXTRA_USER_ID",Plus.PeopleApi.getCurrentPerson(mGoogleApiClient).getId()));
 	}
 	
 	/**

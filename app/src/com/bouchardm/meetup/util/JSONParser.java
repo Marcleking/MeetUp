@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -15,25 +17,38 @@ import org.json.JSONObject;
 import android.util.Log;
 public class JSONParser {
   
-	private static final String MSG_KEY = "key";
 	private static final String MSG_RESULT = "result";
 	private static final String MSG_SUCCESS = "success";
 	private static final String MSG_ERROR = "error";
 	
-	public static String parseGoogleKey(String p_body) throws JSONException {
-		String googleKey = "";
+	public static ArrayList<String> parseFriendList(String p_body) throws JSONException{
+		ArrayList<String> listeAmis = null;
 		JSONObject json = new JSONObject(p_body);
 		
 		if(json.getString(MSG_RESULT).equals(MSG_SUCCESS)){
-			//JSONObject obj = json.getJSONObject("key");
-			googleKey = json.getString(MSG_KEY);
+			listeAmis = new ArrayList<String>();
+			JSONArray tab = json.getJSONArray("amis");
+			for (int i = 0; i < tab.length(); i++) {
+				listeAmis.add(tab.get(i).toString());				
+			}
 		}
 		else
 		{
-			googleKey = json.getString("message");
+			Log.w("parseListePersonne", "No success from web service : " + p_body);
 		}
 		
-		return googleKey;
+		return listeAmis;
 	}
 	
+	public static String parseSingleString(String p_body, String nodeName) throws JSONException{
+		String message = "";
+		JSONObject json = new JSONObject(p_body);
+		
+		if(json.getString(MSG_RESULT).equals(MSG_SUCCESS))
+			message = json.getString(nodeName);
+		else
+			message = json.getString("message");
+		
+		return message;
+	}
 }

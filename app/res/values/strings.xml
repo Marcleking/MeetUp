@@ -35,4 +35,13 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     
+    <string name="dateDebut">Date de début</string>
+    <string name="dateFin">Date de fin</string>
+    <string name="date">Date</string>
+    <string name="heure">Heure</string>
+    
+    <string name="addFriendsToMeetUp">Inviter des amis</string>
+    <string name="createMeetUp">Créer le MeetUp</string>
+    
+    
 </resources>
