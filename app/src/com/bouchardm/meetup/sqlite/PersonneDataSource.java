@@ -16,10 +16,14 @@ public class PersonneDataSource {
 	private static final String COL_ID = "_id";
 	private static final String COL_GOOGLEID = "googleid";
 	private static final String COL_SECURITYNUMBER = "securitynumber";
+	private static final String COL_HEUREMIN = "heuremin";
+	private static final String COL_HEUREMAX = "heuremax";
 	
 	private static final int IDX_ID = 0;
 	private static final int IDX_GOOGLEID = 1;
 	private static final int IDX_SECURITYNUMBER = 2;
+	private static final int IDX_HEUREMIN = 3;
+	private static final int IDX_HEUREMAX = 4;
 	
 	private PersonDbHelper m_Helper;
 	private SQLiteDatabase m_Db;
@@ -47,6 +51,8 @@ public class PersonneDataSource {
         ContentValues row = new ContentValues();
         row.put(COL_GOOGLEID, p_Person.get_googleId());
 		row.put(COL_SECURITYNUMBER, p_Person.get_securityNumber());
+		row.put(COL_HEUREMIN, p_Person.getM_heureMin());
+		row.put(COL_HEUREMAX, p_Person.getM_heureMax());
         return row;
     }
 	
@@ -107,6 +113,8 @@ public class PersonneDataSource {
 		p.setId(				c.getInt(	IDX_ID));
 		p.set_googleId(			c.getString(IDX_GOOGLEID));
 		p.set_securityNumber( 	c.getString(IDX_SECURITYNUMBER));
+		p.setM_heureMin(        c.getInt(   IDX_HEUREMIN));
+		p.setM_heureMax(        c.getInt(   IDX_HEUREMAX));
 		return p;
 	}
 	
@@ -120,7 +128,7 @@ public class PersonneDataSource {
 			p_db.execSQL(
 					"create table " + TABLE_NAME 
 					+ " (_id integer primary key autoincrement, " 
-					+ "googleid text, securitynumber text)");
+					+ "googleid text, securitynumber text, heuremin integer, heuremax integer)");
 		}
 		
 		@Override
@@ -129,4 +137,10 @@ public class PersonneDataSource {
 			this.onCreate(p_db);
 		}
 	}
+	
+	
+	public void update(Personne p_Person) {
+        ContentValues row = personToContentValues(p_Person);
+        m_Db.update(TABLE_NAME, row, COL_ID + "=" + p_Person.getId(), null);
+    }
 }

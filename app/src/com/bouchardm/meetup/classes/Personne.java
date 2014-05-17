@@ -6,6 +6,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 import java.util.Random;
 
+import com.bouchardm.meetup.sqlite.PersonneDataSource;
+
+import android.content.Context;
+
 public class Personne {
 	
 	public static final int ID_NON_DEFINI = -1;
@@ -19,6 +23,10 @@ public class Personne {
 	// Numéro de sécurité généré pour la personne
 	private String m_SecurityNumber;
 	
+	// Settings
+	private int m_heureMin;
+	private int m_heureMax;
+	
 	public Personne(){
 		this("");
 	}
@@ -29,9 +37,13 @@ public class Personne {
 			this.m_SecurityNumber = generateSecurityNumber(p_googleId);
 		else
 			this.m_SecurityNumber = this.SECURITY_NUMBER_NON_DEFINI; 
+		
+		this.m_heureMin = 8;
+		this.m_heureMax = 20;
+		
 		this.m_id = this.ID_NON_DEFINI;
 	}
-	
+
 	public static String ParsePersonneToString(Personne personne){
 		return personne.getId() + ";" + personne.get_googleId() + ";" + personne.get_securityNumber();
 	}
@@ -77,6 +89,13 @@ public class Personne {
 	    formatter.close();
 	    return result;
 	}
+	
+	public void update(Context c) {
+		PersonneDataSource pds = new PersonneDataSource(c);
+		pds.open();
+		pds.update(this);
+		pds.close();
+	}
 
 	public String get_googleId() {
 		return m_googleId;
@@ -101,4 +120,20 @@ public class Personne {
 	public void setId(int id) {
 		this.m_id = id;
 	}
+	public int getM_heureMin() {
+		return m_heureMin;
+	}
+
+	public void setM_heureMin(int m_heureMin) {
+		this.m_heureMin = m_heureMin;
+	}
+
+	public int getM_heureMax() {
+		return m_heureMax;
+	}
+
+	public void setM_heureMax(int m_heureMax) {
+		this.m_heureMax = m_heureMax;
+	}
+
 }

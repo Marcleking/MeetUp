@@ -223,14 +223,19 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		// Amis
 		case 3:
 			//this.startActivity(new Intent(this, Amis.class));
-			
 			Fragment friendFragment = new FragmentAmis();
 			activeFragment = friendFragment;
 			((FragmentAmis) friendFragment).setmGoogleApiClient(mGoogleApiClient);
 			fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment,"fragment").commit();
-			
-			
+			break;
+		// Paramètre
+		case 4:
+			friendFragment = new FragmentParametre();
+			activeFragment = friendFragment;
+			((FragmentParametre) friendFragment).setmGoogleApiClient(mGoogleApiClient);
+			fragmentManager = getSupportFragmentManager();
+			fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment,"fragment").commit();
 			break;
 		// Déconnexion
 		case 5:

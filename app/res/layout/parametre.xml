@@ -1,0 +1,53 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:text="Paramètres"
+       android:textStyle="bold"
+       android:textSize="40dp"
+       android:layout_gravity="center_horizontal" />
+    
+    <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:text="Affichage des moments libres de vos amis :" />
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Heure minimum :" />
+
+        <Button
+            android:id="@+id/btnHeureMin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="8 heures" />
+    </LinearLayout>
+    
+     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Heure maximum :" />
+
+        <Button
+            android:id="@+id/btnHeureMax"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="20 heures" />
+    </LinearLayout>
+ 
+</LinearLayout>

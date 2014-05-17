@@ -502,6 +502,23 @@ class ListMeetUp(webapp.RequestHandler):
                 list = []
                 
                 for meetUp in listMeetUp.run():
+                    listeParticipant = []
+                    
+                    if self.request.get("withInfo") == "1":
+                        
+                        for participant in meetUp.listParticipant:
+                            a = Utilisateur.all()
+                            a.filter("username =", participant)
+                            unParticipant = a.get()
+                            
+                            listeParticipant.append({
+                                'username' : unParticipant.username,
+                                'nom' : unParticipant.nom,
+                                'prenom' : unParticipant.prenom
+                            })
+                    else:
+                        listeParticipant = meetUp.listParticipant
+                        
                     unMeetUp = {
                         'key': str(meetUp.key()),
                         'nom': str(meetUp.nom),
@@ -509,8 +526,9 @@ class ListMeetUp(webapp.RequestHandler):
                         'duree': str(meetUp.duree),
                         'heureMin': str(meetUp.heureMin),
                         'heureMax': str(meetUp.heureMax),
+                        'dateMin': str(meetUp.dateMax),
                         'dateMax': str(meetUp.dateMax),
-                        'participant': meetUp.listParticipant
+                        'participant': listeParticipant
                     }
                     
                     list.append(unMeetUp)
@@ -589,7 +607,7 @@ class InviteUserAtMeetUp(webapp.RequestHandler):
             if amiAjouter is not None:
                 #On vérifie que l'ami à ajouter est bel et bien un ami de l'utilisateur
                 for ami in user.listAmi:
-                    if ami == amiAjouter.nom:
+                    if ami == amiAjouter.username:
                         isFriend = 1
             else:
                 response = {
