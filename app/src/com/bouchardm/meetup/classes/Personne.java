@@ -36,12 +36,12 @@ public class Personne {
 		if(!p_googleId.equals(""))
 			this.m_SecurityNumber = generateSecurityNumber(p_googleId);
 		else
-			this.m_SecurityNumber = this.SECURITY_NUMBER_NON_DEFINI; 
+			this.m_SecurityNumber = Personne.SECURITY_NUMBER_NON_DEFINI; 
 		
 		this.m_heureMin = 8;
 		this.m_heureMax = 20;
 		
-		this.m_id = this.ID_NON_DEFINI;
+		this.m_id = Personne.ID_NON_DEFINI;
 	}
 
 	public static String ParsePersonneToString(Personne personne){

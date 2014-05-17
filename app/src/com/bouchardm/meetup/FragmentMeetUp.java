@@ -77,7 +77,6 @@ public class FragmentMeetUp extends ListFragment implements View.OnClickListener
 		listeMesInvitations = (ListView)rootView.findViewById(R.id.listeDemandesMeetUp);
 		
 		GetMyEvents();
-		Log.i("Test",MeetUp.ParseMeetUpToString(mesMeetUp.get(0)));
 		
 		if(this.mesInvitations != null && this.mesInvitations.size() > 0){
 			
