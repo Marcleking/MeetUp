@@ -28,62 +28,81 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/heureMinEvenement"
+        <TextView 
+            android:id="@+id/debutEvenement"
+            android:text="@string/dateDebut"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+       
+        <Button
+            android:id="@+id/dateDebut"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
-            android:hint="Heure min (ex.: 13:00)"
-            android:inputType="time"/>
+            android:onClick="onClickDate"
+            android:hint="@string/date"
+            android:focusable="false" />
 
-        <EditText
-            android:id="@+id/heureMaxEvenement"
+        <Button
+            android:id="@+id/heureDebut"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
-            android:hint="Heure max (ex.: 19:00)"
-            android:inputType="time" />
-        
+            android:onClick="onClickTime"
+            android:hint="@string/heure"
+            android:focusable="false" />
+         
     </LinearLayout>
     
-    <LinearLayout
+    <LinearLayout 
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/dateMinEvenement"
+        <TextView 
+            android:id="@+id/finEvenement"
+            android:text="@string/dateFin"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10" 
-            android:hint="Date min (JJ/MM/AAAA)"
-            android:inputType="date"/>
-
-        <EditText
-            android:id="@+id/dateMaxEvenement"
+            android:layout_weight="1" />
+       
+        <Button
+            android:id="@+id/dateFin"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
-            android:hint="Date max (JJ/MM/AAAA)"
-            android:inputType="date" />
+            android:onClick="onClickDate"
+            android:hint="@string/date"
+            android:focusable="false" />
+
+        <Button
+            android:id="@+id/heureFin"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:onClick="onClickTime"
+            android:hint="@string/heure"
+            android:focusable="false" />
+         
     </LinearLayout>
 
     <Button
         android:id="@+id/ajoutAmisEvenement"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:onClick="checherAmis"
-        android:text="Gérer les amis" />
+        android:onClick="chercherAmis"
+        android:text="@string/addFriendsToMeetUp" />
 
     <Button
         android:id="@+id/creeEvenement"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:onClick="creeEvenement"
-        android:text="Créé l'évènement" />
+        android:onClick="creerEvenement"
+        android:text="@string/createMeetUp" />
 
 </LinearLayout>

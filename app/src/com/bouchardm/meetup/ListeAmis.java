@@ -1,18 +1,35 @@
 package com.bouchardm.meetup;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import com.bouchardm.meetup.classes.network;
+
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -21,29 +38,75 @@ public class ListeAmis extends ListActivity {
 	/**
 	 * Attributs de la view
 	 */
-	private ArrayList<String> m_Tokens = new ArrayList<String>();
-	private ArrayList<RowModel> m_RowModels = new ArrayList<RowModel>();
+	private ArrayList<String> m_Tokens = null;
+	private ArrayList<RowModel> m_RowModels = null;
 	private LigneAdapter m_adapter;
+	
+	private String googleId;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.meet_up_creation_liste_amis);
 		
+		m_Tokens = new ArrayList<String>();
+		m_RowModels = new ArrayList<RowModel>();
+		
 		m_adapter = new LigneAdapter();
 		this.setListAdapter(m_adapter);
 		
-		m_Tokens.add("Stéphane");
-		m_Tokens.add("Francis");
-		m_Tokens.add("Marc-Antoine");
+		Bundle extras = getIntent().getExtras();
+		if(extras != null){
+			googleId = extras.getString("EXTRA_USER_ID");
+		}
+		
+		try{
+			network.AsyncGetFriends getFriendList = new network.AsyncGetFriends();
+			getFriendList.setUser_id(googleId);
+			ArrayList<String> listeAmis = getFriendList.execute().get();
+			
+			for(String ami : listeAmis ){
+				m_Tokens.add(ami);
+			}
+		}
+		catch(Exception e){
+			m_Tokens.add("Erreur dans la récupération des amis");
+		}
 		
 		for (String token : m_Tokens) {
 			m_RowModels.add(new RowModel(token, false));
 		}
+		
+		if(extras != null && extras.containsKey("EXTRA_MEETUP_AMI") && extras.getStringArrayList("EXTRA_MEETUP_AMI") != null){ 
+			for(RowModel ligne : m_RowModels)
+			{
+				for(String ami : extras.getStringArrayList("EXTRA_MEETUP_AMI")){
+					Log.i("Check added friends", ligne.getContent() + " : " + ami);
+					if (ligne.getContent().equals(ami)){
+						ligne.setIsActivate(true);
+						Log.i("Check added friends", "Combinaison trouvée !");
+					}
+				}
+			}
+		}
+		
 	}
 	
 	public void okAmis(View source)
 	{
+		ArrayList<String> amis = null;
+		if(m_RowModels.size() != 0){
+			amis = new ArrayList<String>();
+			for(RowModel ligne : m_RowModels){
+				if(ligne.isActivate()){
+					amis.add(ligne.getContent());
+				}
+			}
+		}
+		// TODO : Renvoyer des objets "Ami" plutôt qu'une liste de username
+		Intent i = new Intent();
+		i.putExtra("EXTRA_MEETUP_AMI", amis);
+		this.setResult(RESULT_OK, i);
 		this.finish();
 	}
 	
@@ -168,17 +231,16 @@ public class ListeAmis extends ListActivity {
 			dest.writeString(m_Content);
 			dest.writeByte((byte) (m_isActivate ? 1 : 0));  
 		}
+		
+		public static final Parcelable.Creator<RowModel> CREATOR = new Parcelable.Creator<RowModel>() 
+		{
+	        public RowModel createFromParcel(Parcel in) {
+	            return new RowModel(in.readString(), in.readByte() != 0);
+	        }
+
+	        public RowModel[] newArray(int size) {
+	            return new RowModel[size];
+	        }
+	    };
 	}
-	
-	public static final Parcelable.Creator<RowModel> CREATOR = new Parcelable.Creator<RowModel>() 
-	{
-        public RowModel createFromParcel(Parcel in) {
-            return new RowModel(in.readString(), in.readByte() != 0);
-        }
-
-        public RowModel[] newArray(int size) {
-            return new RowModel[size];
-        }
-    };
-
 }

@@ -184,8 +184,9 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		case 2:
 			Fragment meetUpFragment = new FragmentMeetUp();
 			activeFragment = meetUpFragment;
+			((FragmentMeetUp)meetUpFragment).setGoogleApiClient(mGoogleApiClient);
 			fragmentManager = getSupportFragmentManager();
-			fragmentManager.beginTransaction().replace(R.id.content_frame,meetUpFragment).commit();
+			fragmentManager.beginTransaction().replace(R.id.content_frame,meetUpFragment,"fragment").commit();
 			//this.startActivity(new Intent(this, MeetUp.class));
 			break;
 		// Amis
@@ -344,7 +345,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 			Log.i(TAG,"New id : " + newId);
 			
 			// Ajout de l'usager dans le WebService
-			network.addUser ajoutUsager = new network.addUser();
+			network.AsyncAddUser ajoutUsager = new network.AsyncAddUser();
 			ajoutUsager.setP_user(user);
 			ajoutUsager.setP_sha1(nouvelUsager.get_securityNumber());
 			ajoutUsager.execute((Void)null);
