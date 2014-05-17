@@ -72,7 +72,6 @@ public class FragmentAccueil extends ListFragment implements View.OnClickListene
 		usager = dataSource.getPersonne(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient).getId());
 		dataSource.close();
 		
-		
 		Bundle bundle = this.getArguments();
 		if(bundle != null){
 			m_filtre = (String)bundle.get("filtre");
@@ -254,8 +253,8 @@ public class FragmentAccueil extends ListFragment implements View.OnClickListene
     
 	
     private class getMomentsLibres extends AsyncTask<ArrayList<String>, Void, ArrayList<ArrayList<String>>> {
-    	private int hrsMin = 0;
-    	private int hrsMax = 0;
+    	private int hrsMin = usager.getM_heureMin();
+    	private int hrsMax = usager.getM_heureMax();
     	private int nbJourDansLeFuture = 1;
     	
     	public void setHrsMin(int hrsMin) {
