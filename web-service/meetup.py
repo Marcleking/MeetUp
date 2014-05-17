@@ -499,6 +499,7 @@ class ListMeetUp(webapp.RequestHandler):
             
                 listMeetUp = MeetUp.all()
                 listMeetUp.ancestor(user.key())
+                list = []
                 
                 for meetUp in listMeetUp.run():
                     unMeetUp = {
@@ -624,6 +625,32 @@ class InviteUserAtMeetUp(webapp.RequestHandler):
                 
             self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
             self.response.out.write(response)
+            
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+            
+class GetListeDemandesMeetUp(webapp.RequestHandler):
+    def get(self):
+        try:
+            q = Utilisateur.all()
+            q.filter('username =', self.request.get("username"))
+            me = q.get()
+            
+            if me is not None and me.password == self.request.get("password"):
+                listeDemandes = me.listDemandeMeetUp
+                response = {
+                    MSG_RESULT : MSG_SUCCESS,
+                    'demandes' : listeDemandes
+                }
+            else:
+                response = {
+                    MSG_RESULT : MSG_ERROR,
+                    'message' : 'L\'utilisateur n\'existe pas.'
+                }
+            
+            self.response.headers["Content-Type"] = 'application/json'
+            self.response.out.write(json.dumps(response))
             
         except Exception, ex:
             logging.error(ex)
@@ -800,6 +827,7 @@ def configurerHandler():
                                           ('/list-meetUp',        ListMeetUp),
                                           ('/add-meetUp',         AddMeetUp),
                                           ('/invite-friend',      InviteUserAtMeetUp),
+                                          ('/get-list-demande-meetUp', GetListeDemandesMeetUp),
                                           ('/accept-meetUp',      AcceptInviteMeetUp),
                                           ('/delete-meetUp',      DeleteMeetUp),
                                           ('/delete-user-meetUp', removeUserFromMeetUp),

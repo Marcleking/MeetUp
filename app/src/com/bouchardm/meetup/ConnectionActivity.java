@@ -179,7 +179,8 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		// app uses and which OAuth 2.0 scopes our app requests.
 		return new GoogleApiClient.Builder(this).addConnectionCallbacks(this)
 				.addOnConnectionFailedListener(this).addApi(Plus.API, null)
-				.addScope(Plus.SCOPE_PLUS_LOGIN).build();
+				.addScope(Plus.SCOPE_PLUS_LOGIN)
+				.addScope(Plus.SCOPE_PLUS_PROFILE).build();
 		
 	}
 
@@ -205,6 +206,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		case 1:
 			Fragment horaireFragment = new FragmentHoraire();
 			activeFragment = horaireFragment;
+			((FragmentHoraire) horaireFragment).setmGoogleApiClient(mGoogleApiClient);
 			fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment,"fragment").commit();
 			//this.startActivity(new Intent(this, Horaire.class));

@@ -851,3 +851,4 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 	}
 
 }
+
