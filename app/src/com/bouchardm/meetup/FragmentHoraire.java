@@ -202,6 +202,9 @@ public class FragmentHoraire extends ListFragment implements View.OnClickListene
 			this.m_isActivate = isActivate;
 			if (isActivate) {
 				// TODO : faire en sorte que sa soit avec le bon username
+				
+				
+				
 				new AsyncHttpGet().execute("http://www.appmeetup.appspot.com/add-calendar?moi=Marc&password=motDePasse&ajoute="+m_id);
 			} else {
 				// TODO : faire en sorte que sa soit avec le bon username

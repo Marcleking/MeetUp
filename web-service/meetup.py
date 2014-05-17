@@ -186,6 +186,37 @@ class GetUsers(webapp.RequestHandler):
             logging.error(ex)
             self.error(500)
             
+class GetInfoUser(webapp.RequestHandler):
+    def get(self):
+        try:
+            q = Utilisateur.all()
+            q.filter('username =', self.request.get("username"))
+            me = q.get()
+            
+            if me is not None:
+                response = {
+                    MSG_RESULT : MSG_SUCCESS,
+                    'amis' : me.listAmi,
+                    'demande' : me.listDemande,
+                    'nom' : me.nom,
+                    'prenom' : me.prenom,
+                    'username' : me.username,
+                    
+                }
+            else:
+                response = {
+                    MSG_RESULT : MSG_ERROR,
+                    'message' : 'L\'utilisateur n\'existe pas.'
+                }
+            
+            
+            self.response.headers["Content-Type"] = 'application/json'
+            self.response.out.write(json.dumps(response))
+        
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+            
 class GetFriendList(webapp.RequestHandler):
     def get(self):
         try:
@@ -200,6 +231,42 @@ class GetFriendList(webapp.RequestHandler):
                     'amis' : listeAmis,
                     'demande' : me.listDemande
                 }
+                
+                if self.request.get("withInfo") == "1":
+                    listeAmisInfo = []
+                    
+                    
+                    for ami in me.listAmi:
+                        a = Utilisateur.all()
+                        a.filter("username =", ami)
+                        unAmi = a.get()
+                        
+                        listeAmisInfo.append({
+                            'username' : unAmi.username,
+                            'nom' : unAmi.nom,
+                            'prenom' : unAmi.prenom
+                        })
+                        
+                    listeDemandeInfo = []
+                    
+                    for ami in me.listDemande:
+                        a = Utilisateur.all()   
+                        a.filter("username =", ami)
+                        unAmi = a.get()
+                        
+                        listeDemandeInfo.append({
+                            'username' : unAmi.username,
+                            'nom' : unAmi.nom,
+                            'prenom' : unAmi.prenom
+                        })
+                    
+                    response = {
+                        MSG_RESULT : MSG_SUCCESS,
+                        'amis' : listeAmisInfo,
+                        'demande' : listeDemandeInfo
+                    }  
+                
+                
             else:
                 response = {
                     MSG_RESULT : MSG_ERROR,
@@ -323,6 +390,10 @@ class AddFriend(webapp.RequestHandler):
                     me.listDemande = nouvelleListDemande
                     me.put()
                     
+                    #on s'ajoute comme ami
+                    theFriend.listAmi.append(me.username)
+                    theFriend.put()
+                    
                     response = {
                         MSG_RESULT : MSG_SUCCESS,
                         "message" : "Ami ajouté!"
@@ -377,7 +448,7 @@ class DeleteFriend(webapp.RequestHandler):
             logging.error(ex)
             self.error(500)
 
-class AddMeetUp(webapp.RedirectHandler):
+class AddMeetUp(webapp.RequestHandler):
     def get(self):
         try:
             listUser = Utilisateur.all()
@@ -456,7 +527,7 @@ class ListMeetUp(webapp.RequestHandler):
             logging.error(ex)
             self.error(500)
             
-class DeleteMeetUp(webapp.RedirectHandler):
+class DeleteMeetUp(webapp.RequestHandler):
     def get(self):
         try:
             listUser = Utilisateur.all()
@@ -489,7 +560,7 @@ class DeleteMeetUp(webapp.RedirectHandler):
             self.error(500)
             
             
-class InviteUserAtMeetUp(webapp.RedirectHandler):
+class InviteUserAtMeetUp(webapp.RequestHandler):
     def get(self):
         try:
             #On va chercher l'utilisateur
@@ -721,6 +792,7 @@ def configurerHandler():
                                           ('/delete-calendar',    RemoveCalendar),
                                           ('/get-calendars',      ListCalendar),
 										  ('/get-users',	      GetUsers),
+                                          ('/get-user-info',      GetInfoUser),
 										  ('/get-friends',	      GetFriendList),
 										  ('/get-demandes',	      GetListeDemandes),
                                           ('/ask-friend',         AskFriend),

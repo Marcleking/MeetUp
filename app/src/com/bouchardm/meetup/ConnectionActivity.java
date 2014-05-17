@@ -14,6 +14,22 @@
 
 package com.bouchardm.meetup;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.bouchardm.meetup.classes.network;
 import com.bouchardm.meetup.sqlite.Personne;
@@ -37,6 +53,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Contacts.People;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -105,8 +122,11 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	
 	private DrawerLayout mDrawer;
 	private ListView mLeftDrawerList;
+	private ListView mRightDrawerList;
 	private String[] mLeftMenuItems;
+	private String[] mRightMenuItems;
 	private ActionBarDrawerToggle mLeftDrawerToggle;
+	private ActionBarDrawerToggle mRightDrawerToggle;
 	private CharSequence mTitle;
 	private CharSequence mDrawerTitle;
 	
@@ -118,6 +138,13 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id){
 			selectItem(position);
+		}
+	}
+	
+	private class DrawerItemClickListenerRight implements ListView.OnItemClickListener{
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id){
+			filtreAmi(position);
 		}
 	}
 	
@@ -213,6 +240,22 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		mDrawer.closeDrawer(mLeftDrawerList);
 	}
 	
+	private void filtreAmi(int position) {
+		Fragment horaireFragment = new FragmentAccueil();
+		
+		// on ajoute l'ami à filtré
+		Bundle bundle = new Bundle();
+		bundle.putString("filtre", mRightMenuItems[position]);
+		horaireFragment.setArguments(bundle);
+		
+		activeFragment = horaireFragment;
+		((FragmentAccueil) horaireFragment).setmGoogleApiClient(mGoogleApiClient);
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment,"fragment").commit();
+		
+		mDrawer.closeDrawer(mRightDrawerList);
+	}
+	
 	@Override
 	public void onClick(View v) {
 		if (!mGoogleApiClient.isConnecting()) {
@@ -256,12 +299,16 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //getSupportActionBar().setHomeButtonEnabled(true);
 		
-		mDrawer = (DrawerLayout)findViewById(R.id.drawer_layout);
+		mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 		initLeftMenu();
 		
+		new AsyncHttpGetListAmi().execute(user.getId());
+		
+		
 		Fragment horaireFragment = new FragmentAccueil();
 		activeFragment = horaireFragment;
+		((FragmentAccueil) horaireFragment).setmGoogleApiClient(mGoogleApiClient);
 		FragmentManager fragmentManager = getSupportFragmentManager();
 		fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment,"fragment").commit();
 		
@@ -301,6 +348,15 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		this.mLeftDrawerList.setAdapter(new ArrayAdapter<String>(this,
 				android.R.layout.simple_list_item_1, this.mLeftMenuItems));
 		this.mLeftDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+	}
+	
+	private void initRightMenu(String[] listAmi) {
+		this.mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+		this.mRightDrawerList = (ListView) findViewById(R.id.right_drawer);
+		
+		this.mRightDrawerList.setAdapter(new ArrayAdapter<String>(this,
+				android.R.layout.simple_list_item_1, listAmi));
+		this.mRightDrawerList.setOnItemClickListener(new DrawerItemClickListenerRight());
 	}
 	
 	/**
@@ -524,5 +580,76 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		default:
 			return super.onCreateDialog(id);
 		}
+	}
+	
+	public class AsyncHttpGetListAmi extends AsyncTask<String, Void, ArrayList<String>> {
+	    public String getHttpRequest(String url){
+	        InputStream inputStream = null;
+	        String reponse = "";
+	        try {
+	            HttpClient httpclient = new DefaultHttpClient();
+	            
+	            HttpResponse response = httpclient.execute(new HttpGet(url));
+	            inputStream = response.getEntity().getContent();
+	            reponse = convertInputStreamToString(inputStream);
+	 
+	        } catch (Exception e) {
+	        	reponse = e.getMessage();
+	        }
+	 
+	        return reponse;
+	    }
+		
+	    @Override
+	    protected ArrayList<String> doInBackground(String... id) {
+	    	
+	    	ArrayList<String> reponse = new ArrayList<String>();
+	    	
+	    	for (int i = 0; i < id.length; i++) {
+	    		reponse.add(getHttpRequest("http://www.appmeetup.appspot.com/get-friends?username="+id[i]+"&withInfo=1"));
+	    	}
+	    	
+	        return reponse;
+	    }
+	    
+	    @Override
+	    protected void onPostExecute(ArrayList<String> result) {
+	    	
+	    	String[] listeAmi = new String[result.size()];
+	    	String[] usernameAmi = new String[result.size()];
+	    	
+	    	for (int i = 0; i < result.size(); i++) {
+	    		try {
+					JSONObject reponse = new JSONObject(result.get(i));
+					JSONArray listeAmiReponse = reponse.getJSONArray("amis");
+					
+					
+					
+					for (int j = 0; j < listeAmiReponse.length(); j++) {
+						JSONObject unAmi = listeAmiReponse.getJSONObject(j);
+						
+						listeAmi[i] = unAmi.getString("prenom") +" "+ unAmi.getString("nom");
+						usernameAmi[i] = unAmi.getString("username");
+					}
+					
+				} catch (JSONException e) {}
+	    		
+	    	}
+	    	
+	    	mRightMenuItems = usernameAmi;
+	    	initRightMenu(listeAmi);
+	    }
+	}
+	
+	public String convertInputStreamToString(InputStream inputStream) throws IOException{
+	    BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
+	    String line = "";
+	    String result = "";
+	    while((line = bufferedReader.readLine()) != null)
+	        result += line;
+	
+	    inputStream.close();
+	    return result;
+	
 	}
 }
