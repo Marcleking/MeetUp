@@ -31,8 +31,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.bouchardm.meetup.classes.Personne;
 import com.bouchardm.meetup.classes.network;
-import com.bouchardm.meetup.sqlite.Personne;
 import com.bouchardm.meetup.sqlite.PersonneDataSource;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -131,6 +131,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	private CharSequence mDrawerTitle;
 	
 	private Person user;
+	private Personne usager;
 	
 	private Fragment activeFragment;
 	
@@ -212,7 +213,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		case 2:
 			Fragment meetUpFragment = new FragmentMeetUp();
 			activeFragment = meetUpFragment;
-			((FragmentMeetUp)meetUpFragment).setGoogleApiClient(mGoogleApiClient);
+			((FragmentMeetUp)meetUpFragment).setUsager(usager);
 			fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction().replace(R.id.content_frame,meetUpFragment,"fragment").commit();
 			//this.startActivity(new Intent(this, MeetUp.class));
@@ -414,7 +415,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 			ajoutUsager.setP_sha1(nouvelUsager.get_securityNumber());
 			ajoutUsager.execute((Void)null);
 		}
-		
+		usager = dataSource.getPersonne(user.getId());
 		dataSource.close();
 		
 

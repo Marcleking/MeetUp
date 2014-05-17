@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.bouchardm.meetup.util.JSONParser;
+import com.bouchardm.meetup.classes.MeetUp;
 import com.google.android.gms.plus.model.people.Person;
 
 public class network {
@@ -297,6 +298,51 @@ public class network {
 		}
 		public void setMeetUpKey(String meetUpKey) {
 			this.meetUpKey = meetUpKey;
+		}
+	}
+	
+	public static class AsyncGetMyMeetUp extends AsyncTask<Void, Void, ArrayList<MeetUp>>{
+		private String username;
+		private String securityNumber;
+		
+		private HttpClient m_ClientHttp = new DefaultHttpClient();
+		
+		@Override
+		protected ArrayList<MeetUp> doInBackground(Void... unused) {
+			ArrayList<MeetUp> meetUp = null;
+			
+			try{
+				URI uri = new URI("http",WEB_SERVICE_URL,"/list-meetUp",
+						"moi=" + this.username +
+						"&password=" + this.securityNumber +
+						"&withinfo=1"
+						, null);
+				Log.i("GetMeetUp", uri.toString());
+				HttpGet getMethod = new HttpGet(uri);
+				
+				String body = m_ClientHttp.execute(getMethod,new BasicResponseHandler());
+				meetUp = JSONParser.parseMeetUpList(body);
+			}
+			catch(Exception e){
+				Log.i("GetMyMeetUpsError",e.getMessage());
+			}
+			return meetUp;
+		}
+
+		public String getUsername() {
+			return username;
+		}
+
+		public void setUsername(String username) {
+			this.username = username;
+		}
+
+		public String getSecurityNumber() {
+			return securityNumber;
+		}
+
+		public void setSecurityNumber(String securityNumber) {
+			this.securityNumber = securityNumber;
 		}
 	}
 	

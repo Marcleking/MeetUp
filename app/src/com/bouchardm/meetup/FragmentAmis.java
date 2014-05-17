@@ -14,6 +14,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.bouchardm.meetup.classes.Personne;
 import com.bouchardm.meetup.classes.network;
 import com.bouchardm.meetup.util.AsyncHttpGet;
 import com.bouchardm.meetup.sqlite.*;

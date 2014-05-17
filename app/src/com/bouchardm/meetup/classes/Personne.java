@@ -1,4 +1,4 @@
-package com.bouchardm.meetup.sqlite;
+package com.bouchardm.meetup.classes;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -30,6 +30,18 @@ public class Personne {
 		else
 			this.m_SecurityNumber = this.SECURITY_NUMBER_NON_DEFINI; 
 		this.m_id = this.ID_NON_DEFINI;
+	}
+	
+	public static String ParsePersonneToString(Personne personne){
+		return personne.getId() + ";" + personne.get_googleId() + ";" + personne.get_securityNumber();
+	}
+	
+	public static Personne ParseStringToPerson(String parse){
+		Personne personne = new Personne();
+		personne.setId(Integer.parseInt(parse.split(";")[0]));
+		personne.set_googleId(parse.split(";")[1]);
+		personne.set_securityNumber(parse.split(";")[2]);
+		return personne;
 	}
 	
 	private String generateSecurityNumber(String googleId){
