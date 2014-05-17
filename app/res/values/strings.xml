@@ -43,5 +43,14 @@
     <string name="addFriendsToMeetUp">Inviter des amis</string>
     <string name="createMeetUp">Créer le MeetUp</string>
     
+    <string name="btnAjoutMeetUp">Ajouter un MeetUp</string>
+    
+    <string name="menu_participer">Je vais participer</string>
+    <string name="menu_peut_etre">Je vais peut-être participer</string>
+    <string name="menu_refuser">Je ne vais pas participer</string>
+    <string name="menu_modifier">Modifier l\'événement</string>
+    <string name="menu_supprimer">Supprimer l\'événement</string>
+    <string name="menu_voir_participants">Voir les participants</string>
+    
     
 </resources>

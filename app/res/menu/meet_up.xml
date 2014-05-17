@@ -3,14 +3,14 @@
     
     <item
         android:id="@+id/menu_participe"
-        android:title="Je vais participer !" />
+        android:title="@string/menu_participer" />
     
     <item
         android:id="@+id/menu_peutEtre"
-        android:title="Je vais peut-être participer" />
+        android:title="@string/menu_peut_etre" />
  
     <item 
         android:id="@+id/menu_nePasParticiper"
-        android:title="Ne pas participer" />
+        android:title="@string/menu_refuser" />
 
 </menu>

@@ -14,6 +14,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.bouchardm.meetup.classes.Ami;
+import com.bouchardm.meetup.classes.MeetUp;
+
 import android.util.Log;
 public class JSONParser {
   
@@ -38,6 +42,45 @@ public class JSONParser {
 		}
 		
 		return listeAmis;
+	}
+	
+	public static ArrayList<MeetUp> parseMeetUpList(String p_body) throws JSONException{
+		ArrayList<MeetUp> listeMeetUp = null;
+		JSONObject json = new JSONObject(p_body);
+		
+		if(json.getString(MSG_RESULT).equals(MSG_SUCCESS)){
+			listeMeetUp = new ArrayList<MeetUp>();
+			JSONArray tab = json.getJSONArray("listMeetUp");
+			for(int i = 0; i < tab.length(); i++){
+				listeMeetUp.add(new MeetUp());
+				JSONObject meetUp = tab.getJSONObject(i);
+				if(meetUp != null){
+					listeMeetUp.get(i).set_nom(meetUp.getString("nom"));
+					listeMeetUp.get(i).set_lieu(meetUp.getString("lieu"));
+					listeMeetUp.get(i).set_duree(meetUp.getInt("duree"));
+					listeMeetUp.get(i).set_heureMin(meetUp.getInt("heureMin"));
+					listeMeetUp.get(i).set_heureMax(meetUp.getInt("heureMax"));
+					listeMeetUp.get(i).set_dateMin(meetUp.getString("dateMin"));
+					listeMeetUp.get(i).set_dateMax(meetUp.getString("dateMax"));
+					ArrayList<Ami> amis = new ArrayList<Ami>();
+					JSONArray participants = meetUp.getJSONArray("participant");
+					if(participants != null && participants.length() > 0){
+						for(int j = 0; j < participants.length(); j++){
+							JSONObject participant = participants.getJSONObject(j);
+							
+							amis.add(new Ami());
+							amis.get(j).set_id(participant.getString("username"));
+							amis.get(j).set_nom(participant.getString("nom"));
+							amis.get(j).set_prenom(participant.getString("prenom"));
+						}
+					}
+					listeMeetUp.get(i).set_invites(amis);
+				}
+			}
+		}
+		
+		
+		return listeMeetUp;
 	}
 	
 	public static String parseSingleString(String p_body, String nodeName) throws JSONException{

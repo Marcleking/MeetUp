@@ -1,5 +1,7 @@
 package com.bouchardm.meetup.sqlite;
 
+import com.bouchardm.meetup.classes.Personne;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;

@@ -21,7 +21,7 @@ import com.bouchardm.meetup.Horaire.RowModel;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;
 import com.google.api.services.calendar.Calendar.Calendars;
-import com.bouchardm.meetup.sqlite.Personne;
+import com.bouchardm.meetup.classes.Personne;
 import com.bouchardm.meetup.sqlite.PersonneDataSource;
 import com.bouchardm.meetup.util.*;
 

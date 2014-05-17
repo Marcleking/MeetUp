@@ -18,7 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bouchardm.meetup.sqlite.Personne;
+import com.bouchardm.meetup.classes.Personne;
 import com.bouchardm.meetup.sqlite.PersonneDataSource;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.plus.Plus;

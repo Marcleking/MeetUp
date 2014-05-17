@@ -1,16 +1,23 @@
 package com.bouchardm.meetup.classes;
 
-public class Ami {
+import com.bouchardm.meetup.FragmentMeetUp.RowMonEvenementModel;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Ami{
 	private String m_id;
 	private String m_nom;
 	private String m_prenom;
+	
+	public Ami(){}
 	
 	public Ami(String p_id, String p_nom, String p_prenom){
 		this.m_id = p_id;
 		this.m_nom = p_nom;
 		this.m_prenom = p_prenom;
 	}
-
+	
 	public String get_id() {
 		return m_id;
 	}

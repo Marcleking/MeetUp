@@ -14,6 +14,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.bouchardm.meetup.classes.Personne;
 import com.bouchardm.meetup.classes.network;
 import com.bouchardm.meetup.util.AsyncHttpGet;
 import com.bouchardm.meetup.sqlite.*;
@@ -224,14 +225,10 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 					
 					return true;
 				case R.id.menu_refuser:
-					// on supprime l'ami sur le web service
-					new AsyncHttpGet().execute("http://www.appmeetup.appspot.com/delete-friend?moi=" + usager.get_googleId() + "&password=" + usager.get_securityNumber() + "&supprime="+ExpListItems.get(group).getItem(child).getName());
-					
 					//Supprimer un n'ami
 					ExpListItems.get(group).getItems().remove(child);
 					ExpAdapter = new ExpandListAdapter(rootView.getContext(), ExpListItems);
 					ExpandList.setAdapter(ExpAdapter);
-					
 					return true;
 			  }
 		//Si c'est un groupe qui a été sélectionné
@@ -687,6 +684,7 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
     	}
 		@Override
 		public int describeContents() {
+			// TODO Auto-generated method stub
 			return 0;
 		}
 		@Override
@@ -853,3 +851,4 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 	}
 
 }
+

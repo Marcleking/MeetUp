@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import com.bouchardm.meetup.classes.Ami;
+import com.bouchardm.meetup.classes.Personne;
 import com.bouchardm.meetup.classes.network;
-import com.bouchardm.meetup.sqlite.Personne;
 import com.bouchardm.meetup.sqlite.PersonneDataSource;
 
 import android.os.Build;
