@@ -179,8 +179,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		// app uses and which OAuth 2.0 scopes our app requests.
 		return new GoogleApiClient.Builder(this).addConnectionCallbacks(this)
 				.addOnConnectionFailedListener(this).addApi(Plus.API, null)
-				.addScope(Plus.SCOPE_PLUS_LOGIN)
-				.addScope(Plus.SCOPE_PLUS_PROFILE).build();
+				.addScope(Plus.SCOPE_PLUS_LOGIN).build();
 		
 	}
 
@@ -206,7 +205,6 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		case 1:
 			Fragment horaireFragment = new FragmentHoraire();
 			activeFragment = horaireFragment;
-			((FragmentHoraire) horaireFragment).setmGoogleApiClient(mGoogleApiClient);
 			fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment,"fragment").commit();
 			//this.startActivity(new Intent(this, Horaire.class));
@@ -223,19 +221,14 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		// Amis
 		case 3:
 			//this.startActivity(new Intent(this, Amis.class));
+			
 			Fragment friendFragment = new FragmentAmis();
 			activeFragment = friendFragment;
 			((FragmentAmis) friendFragment).setmGoogleApiClient(mGoogleApiClient);
 			fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment,"fragment").commit();
-			break;
-		// Paramètre
-		case 4:
-			friendFragment = new FragmentParametre();
-			activeFragment = friendFragment;
-			((FragmentParametre) friendFragment).setmGoogleApiClient(mGoogleApiClient);
-			fragmentManager = getSupportFragmentManager();
-			fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment,"fragment").commit();
+			
+			
 			break;
 		// Déconnexion
 		case 5:
