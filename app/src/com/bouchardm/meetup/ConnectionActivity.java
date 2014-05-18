@@ -33,6 +33,7 @@ import org.json.JSONObject;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.bouchardm.meetup.classes.Personne;
 import com.bouchardm.meetup.classes.network;
+import com.bouchardm.meetup.service.NotificationService;
 import com.bouchardm.meetup.sqlite.PersonneDataSource;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -49,12 +50,15 @@ import com.google.api.services.calendar.*;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.IntentSender.SendIntentException;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.Contacts.People;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
@@ -77,6 +81,8 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		ConnectionCallbacks, OnConnectionFailedListener, View.OnClickListener {
 
 	private static final String TAG = "android-plus-quickstart";
+
+    private NotificationService.WordServiceBinder m_Binder;
 
 	private static final int STATE_DEFAULT = 0;
 	private static final int STATE_SIGN_IN = 1;
@@ -171,6 +177,18 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 			activeFragment = getSupportFragmentManager().findFragmentByTag("fragment");
 			getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, activeFragment,"fragment").commit();
 		}
+		
+		// Pour se lier au service et demander son interface publique.
+        // Nous la recevrons dans WordServiceConnection.onServiceConnected()
+		try {
+			 this.getApplicationContext().bindService(
+	    		new Intent(this, NotificationService.class), 
+	    		new WordServiceConnection(),
+	    		BIND_AUTO_CREATE);
+		} catch (Exception e) {
+			Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+		}
+       
 	}
 
 	private GoogleApiClient buildGoogleApiClient() {
@@ -203,10 +221,14 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		switch(position){
 		// Horaire
 		case 1:
-			Fragment horaireFragment = new FragmentHoraire();
-			activeFragment = horaireFragment;
-			fragmentManager = getSupportFragmentManager();
-			fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment,"fragment").commit();
+			try {
+				Fragment horaireFragment = new FragmentHoraire();
+				activeFragment = horaireFragment;
+				fragmentManager = getSupportFragmentManager();
+				fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment,"fragment").commit();
+			} catch (Exception e) {
+				Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+			}
 			//this.startActivity(new Intent(this, Horaire.class));
 			break;
 		// MeetUp
@@ -654,4 +676,17 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	    return result;
 	
 	}
+	
+	 private class WordServiceConnection implements ServiceConnection{
+	    	
+		@Override	
+		public void onServiceConnected(ComponentName p_name, IBinder p_service) {
+			// Interface publique du service.
+			m_Binder = (NotificationService.WordServiceBinder) p_service;
+		}
+		@Override  
+		public void onServiceDisconnected(ComponentName p_name) {
+			m_Binder = null;
+		}
+    }
 }

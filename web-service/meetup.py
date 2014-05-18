@@ -201,7 +201,7 @@ class GetInfoUser(webapp.RequestHandler):
                     'nom' : me.nom,
                     'prenom' : me.prenom,
                     'username' : me.username,
-                    
+                    'listMeetUp' : me.listMeetUp
                 }
             else:
                 response = {
@@ -553,41 +553,34 @@ class EditMeetUp(webapp.RequestHandler):
 class GetMeetUpInfo(webapp.RequestHandler):
     def get(self):
         try:
-            listUser = Utilisateur.all()
-            listUser.filter("username =", self.request.get("moi"))
-            user = listUser.get()
+            listMeetUp = MeetUp.all()
             
-            if user.password == self.request.get("password"):
-                
-                listMeetUp = MeetUp.all()
-                listMeetUp.ancestor(user.key())
-                
-                response = {
-                    MSG_RESULT : MSG_SUCCESS,
-                    MSG_KEY    : "Le meetUp n'existe pas."
-                }
-                
-                for meetUp in listMeetUp:
-                    if str(meetUp.key()) == self.request.get("meetUp") and not meetUp.supprimer == "true" :
-                        info = {
-                            'key' : str(meetUp.key()),
-                            'nom' : meetUp.nom,
-                            'lieu' : meetUp.lieu,
-                            'duree' : meetUp.duree,
-                            'heureMin' : meetUp.heureMin,
-                            'heureMax' : meetUp.heureMax,
-                            'dateMin' : str(meetUp.dateMin),
-                            'dateMax' : str(meetUp.dateMax),
-                            'listeParticipant' : meetUp.listParticipant,
-                        }
-                        
-                        response = {
-                            MSG_RESULT : MSG_SUCCESS,
-                            "info"    : info
-                        }
-                        
-                self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
-                self.response.out.write(json.dumps(response))
+            response = {
+                MSG_RESULT : MSG_SUCCESS,
+                MSG_KEY    : "Le meetUp n'existe pas."
+            }
+            
+            for meetUp in listMeetUp:
+                if not meetUp.supprimer == "true" :
+                    info = {
+                        'key' : str(meetUp.key()),
+                        'nom' : meetUp.nom,
+                        'lieu' : meetUp.lieu,
+                        'duree' : meetUp.duree,
+                        'heureMin' : meetUp.heureMin,
+                        'heureMax' : meetUp.heureMax,
+                        'dateMin' : str(meetUp.dateMin),
+                        'dateMax' : str(meetUp.dateMax),
+                        'listeParticipant' : meetUp.listParticipant,
+                    }
+                    
+                    response = {
+                        MSG_RESULT : MSG_SUCCESS,
+                        "info"    : info
+                    }
+                    
+            self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
+            self.response.out.write(json.dumps(response))
         
         except Exception, ex:
             logging.error(ex)
@@ -740,6 +733,7 @@ class InviteUserAtMeetUp(webapp.RequestHandler):
             #On parcours tous les meetup de l'utilisateur
             listMeetUp = MeetUp.all()
             listMeetUp.ancestor(user.key())
+            
             for meetUp in listMeetUp.run():
                 #Si l'utilisateur à le droit d'invité l'ami
                 if str(meetUp.key()) == idMeetUp and user.password == motDePasse and isFriend and not meetUp.supprimer == "true":
@@ -754,6 +748,7 @@ class InviteUserAtMeetUp(webapp.RequestHandler):
                     #On ajoute l'ami
                     if aAjouter:
                         listeInvitation.append(idMeetUp)
+                        amiAjouter.listNotification.append("Vous êtes invité à un nouveau meetUp!")
                         
                     amiAjouter.listDemandeMeetUp = listeInvitation
                     amiAjouter.put()
