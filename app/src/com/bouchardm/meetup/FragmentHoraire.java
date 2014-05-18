@@ -89,7 +89,6 @@ public class FragmentHoraire extends ListFragment implements View.OnClickListene
 	private static final int PROJECTION_OWNER_ACCOUNT_INDEX = 3;
 	
 	
-	@SuppressLint("NewApi")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
