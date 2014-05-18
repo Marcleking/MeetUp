@@ -28,6 +28,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class FragmentMeetUp extends ListFragment implements View.OnClickListener {
 
@@ -64,7 +65,7 @@ public class FragmentMeetUp extends ListFragment implements View.OnClickListener
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-		
+	
 		if(savedInstanceState != null){
 			usager = Personne.ParseStringToPerson(savedInstanceState.getString("usager"));
 		}
@@ -77,7 +78,6 @@ public class FragmentMeetUp extends ListFragment implements View.OnClickListener
 		listeMesInvitations = (ListView)rootView.findViewById(R.id.listeDemandesMeetUp);
 		
 		GetMyEvents();
-		Log.i("Test",MeetUp.ParseMeetUpToString(mesMeetUp.get(0)));
 		
 		if(this.mesInvitations != null && this.mesInvitations.size() > 0){
 			

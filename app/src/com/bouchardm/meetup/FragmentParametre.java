@@ -31,13 +31,19 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.app.TimePickerDialog;
 import android.app.TimePickerDialog.OnTimeSetListener;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,11 +61,26 @@ public class FragmentParametre extends Fragment implements View.OnClickListener,
 	private String witchTimeSet;
 	private Button btnHeureMin;
 	private Button btnHeureMax;
+	private Button btnReadNotification;
 	private View rootView;
 	
 	private Personne usager;
 	
 	public GoogleApiClient mGoogleApiClient;
+	
+	// Identifiant unique pour la notification.
+	private static final int ID_NOTIF = 124325;
+	
+	// Clé pour l'information attachée à l'intention.
+	public static final String EXTRA_INFO = "message";
+
+	// Gestionnaire de notifications.
+	private NotificationManager notifMgr;
+	
+	// Pour récupérer le texte de la notification.
+	private EditText txtNotif;
+	
+	
 	
 	public GoogleApiClient getmGoogleApiClient() {
 		return mGoogleApiClient;
@@ -74,7 +95,6 @@ public class FragmentParametre extends Fragment implements View.OnClickListener,
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-		
 		rootView = inflater.inflate(R.layout.parametre, container, false);
 
 		PersonneDataSource dataSource = new PersonneDataSource(getActivity());
@@ -90,6 +110,12 @@ public class FragmentParametre extends Fragment implements View.OnClickListener,
 		btnHeureMax.setOnClickListener(this);
 		btnHeureMax.setText(String.valueOf(usager.getM_heureMax())+":00");
         
+		btnReadNotification = (Button) rootView.findViewById(R.id.btnReadNotification);
+		btnReadNotification.setOnClickListener(this);
+		
+		this.notifMgr = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
+		
+		
 		return rootView;
 	}
 
@@ -104,6 +130,9 @@ public class FragmentParametre extends Fragment implements View.OnClickListener,
 	    		break;
 	    	case R.id.btnHeureMax:
 	    		clickHeureMax(v);
+	    		break;
+	    	case R.id.btnReadNotification:
+	    		clickReadNotification(v);
 	    		break;
     	}
     }
@@ -122,6 +151,35 @@ public class FragmentParametre extends Fragment implements View.OnClickListener,
     			usager.getM_heureMax(),
     			0,
     			true).show();
+    }
+    
+    @SuppressWarnings("deprecation")
+	public void clickReadNotification(View v) {
+    	// Texte dans "status bar", titre et texte de la notification.
+    	try {
+			String statusBarNotif = "statutBaR";
+			String titreNotif = "titre notification";
+			String texteNotif = "meetUp";
+	
+			// Création d'un nouvelle notification.
+			Notification notif = new Notification(R.drawable.ic_launcher, statusBarNotif, System.currentTimeMillis());
+			// Pour faire disparaître la notification lorsque l'utilisateur la clique.
+			notif.flags |= Notification.FLAG_AUTO_CANCEL;
+			
+			// Création d'une intention de retour lorsqu'on clique sur la notification.
+			Intent i = new Intent(getActivity(), ConnectionActivity.class);
+			// Ajout d'information dans l'intention.
+			i.putExtra(EXTRA_INFO, texteNotif);
+			// Création d'une nouvelle intention en suspens.
+			PendingIntent pi = PendingIntent.getActivity(getActivity(), 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
+
+			// Configuration de la notification.
+			notif.setLatestEventInfo(getActivity(), titreNotif, texteNotif, pi);
+			// Envoie de la notification.
+			this.notifMgr.notify(ID_NOTIF, notif);
+    	} catch (Exception e) {
+    		Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+    	}
     }
 
 	@Override

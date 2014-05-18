@@ -23,6 +23,8 @@ class MeetUp(db.Model):
     heureMax = db.IntegerProperty()
     dateMin = db.DateProperty()
     dateMax = db.DateProperty()
+    supprimer = db.StringProperty()
     listParticipant = db.StringListProperty()
+    
 
     

@@ -49,5 +49,11 @@
             android:layout_height="wrap_content"
             android:text="20 heures" />
     </LinearLayout>
+    
+    <Button 
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:id="@+id/btnReadNotification"
+         android:text="Lire vos notifications maintenant!" />
  
 </LinearLayout>
