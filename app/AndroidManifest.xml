@@ -55,5 +55,9 @@
             android:name="com.bouchardm.meetup.Amis"
             android:label="@string/title_activity_amis" >
         </activity>
+        <activity
+            android:name="com.bouchardm.meetup.ListeParticipants"
+            android:label="@string/title_activity_liste_participants" >
+        </activity>
     </application>
 </manifest>

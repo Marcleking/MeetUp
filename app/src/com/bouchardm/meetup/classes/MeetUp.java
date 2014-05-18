@@ -1,14 +1,12 @@
 package com.bouchardm.meetup.classes;
 
 import java.util.ArrayList;
-
-import com.bouchardm.meetup.FragmentMeetUp.RowMonEvenementModel;
-
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.util.Log;
 
 public class MeetUp {
 
+	private final static String ID_NON_DEFINI = "";
+	
 	private String m_nom;
 	private String m_lieu;
 	private int m_duree;
@@ -17,6 +15,7 @@ public class MeetUp {
 	private String m_dateMin;
 	private String m_dateMax;
 	private ArrayList<Ami> m_invites;
+	private String m_id;
 	
 	public MeetUp(){}
 	
@@ -29,6 +28,19 @@ public class MeetUp {
 		this.m_dateMin = p_dateMin;
 		this.m_dateMax = p_dateMax;
 		this.m_invites = p_invites;
+		this.m_id = MeetUp.ID_NON_DEFINI;
+	}
+	
+	public MeetUp(MeetUp copie_meetup){
+		this.m_nom = copie_meetup.get_nom();
+		this.m_lieu = copie_meetup.get_lieu();
+		this.m_duree = copie_meetup.get_duree();
+		this.m_heureMin = copie_meetup.get_heureMin();
+		this.m_heureMax = copie_meetup.get_heureMax();
+		this.m_dateMin = copie_meetup.get_dateMin();
+		this.m_dateMax = copie_meetup.get_dateMax();
+		this.m_invites = copie_meetup.get_invites();
+		this.m_id = copie_meetup.get_id();
 	}
 	
 	public static String ParseMeetUpToString(MeetUp meetup){
@@ -40,13 +52,14 @@ public class MeetUp {
 		}
 		
 		return meetup.get_nom() + ";" + meetup.get_lieu() + ";" + meetup.get_duree() + ";" + meetup.get_heureMin() + ";" + 
-		meetup.get_heureMax() + ";" + meetup.get_dateMin() + ";" + meetup.get_dateMax() + "|" + friendParse;
+		meetup.get_heureMax() + ";" + meetup.get_dateMin() + ";" + meetup.get_dateMax() + ";" + meetup.get_id() + "#" + friendParse;
 	}
 	
 	public static MeetUp ParseStringToMeetUp(String parse){
 		MeetUp meetup = null;
-		String infosMeetUp = parse.split("|")[0];
-		String listeInvites = parse.split("|")[1];
+		
+		String infosMeetUp = parse.split("#")[0];
+		String listeInvites = parse.split("#")[1];
 		
 		meetup = new MeetUp();
 		meetup.set_nom(infosMeetUp.split(";")[0]);
@@ -56,6 +69,7 @@ public class MeetUp {
 		meetup.set_heureMax(Integer.parseInt(infosMeetUp.split(";")[4]));
 		meetup.set_dateMin(infosMeetUp.split(";")[5]);
 		meetup.set_dateMax(infosMeetUp.split(";")[6]);
+		meetup.set_id(infosMeetUp.split(";")[7]);
 		meetup.set_invites(new ArrayList<Ami>());
 		
 		if(listeInvites != "")
@@ -129,5 +143,13 @@ public class MeetUp {
 
 	public void set_invites(ArrayList<Ami> m_invites) {
 		this.m_invites = m_invites;
+	}
+
+	public String get_id() {
+		return m_id;
+	}
+
+	public void set_id(String m_id) {
+		this.m_id = m_id;
 	}
 }

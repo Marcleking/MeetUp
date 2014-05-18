@@ -10,6 +10,7 @@
     <string name="title_activity_creation_meet_up">CreationMeetUp</string>
     <string name="title_activity_liste_amis">ListeAmis</string>
     <string name="title_activity_amis">Amis</string>
+    <string name="title_activity_liste_participants">ListeParticipants</string>
 
     <string-array name="left_menu_items">
         <item>name</item>
@@ -52,5 +53,8 @@
     <string name="menu_supprimer">Supprimer l\'événement</string>
     <string name="menu_voir_participants">Voir les participants</string>
     
+    <string name="participe">Je participe</string>
+    <string name="neParticipePas">Je ne participe pas</string>
+    <string name="choisirParticipation">Choisissez votre participation</string>
     
 </resources>

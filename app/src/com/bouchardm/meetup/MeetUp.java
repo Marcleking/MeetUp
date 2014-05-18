@@ -69,11 +69,12 @@ public class MeetUp extends ListActivity {
 				m_adapter = new LigneAdapter();
 				this.setListAdapter(m_adapter);
 				return true;
+			/*
 			case R.id.menu_peutEtre:
 				m_RowModels.get(info.position).setParticipation("Participe peut-être");
 				m_adapter = new LigneAdapter();
 				this.setListAdapter(m_adapter);
-				return true;
+				return true;*/
 			case R.id.menu_participe:
 				m_RowModels.get(info.position).setParticipation("Participe !");
 				m_adapter = new LigneAdapter();
