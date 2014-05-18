@@ -177,18 +177,6 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 			activeFragment = getSupportFragmentManager().findFragmentByTag("fragment");
 			getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, activeFragment,"fragment").commit();
 		}
-		
-		// Pour se lier au service et demander son interface publique.
-        // Nous la recevrons dans WordServiceConnection.onServiceConnected()
-		try {
-			 this.getApplicationContext().bindService(
-	    		new Intent(this, NotificationService.class), 
-	    		new WordServiceConnection(),
-	    		BIND_AUTO_CREATE);
-		} catch (Exception e) {
-			Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-		}
-       
 	}
 
 	private GoogleApiClient buildGoogleApiClient() {
@@ -224,6 +212,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 			try {
 				Fragment horaireFragment = new FragmentHoraire();
 				activeFragment = horaireFragment;
+				((FragmentHoraire) horaireFragment).setmGoogleApiClient(mGoogleApiClient);
 				fragmentManager = getSupportFragmentManager();
 				fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment,"fragment").commit();
 			} catch (Exception e) {
@@ -249,11 +238,18 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 			((FragmentAmis) friendFragment).setmGoogleApiClient(mGoogleApiClient);
 			fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment,"fragment").commit();
-			
+		// Paramètre
+		 case 4:
+		 	friendFragment = new FragmentParametre();
+		 	activeFragment = friendFragment;
+		 	((FragmentParametre) friendFragment).setmGoogleApiClient(mGoogleApiClient);
+		 	fragmentManager = getSupportFragmentManager();
+		 	fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment,"fragment").commit();
 			
 			break;
 		// Déconnexion
 		case 5:
+			
 			Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
 			mGoogleApiClient.disconnect();
 			mGoogleApiClient.connect();
@@ -354,7 +350,17 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 			}
 		};
 		
-
+		// création du service
+		
+		
+		Intent serviceNotification = new Intent(this, NotificationService.class);
+		serviceNotification.putExtra("idGoogle", usager.get_googleId());
+		serviceNotification.putExtra("passwordGoogle", usager.get_securityNumber());
+		this.getApplicationContext().startService(serviceNotification);
+		
+		if (m_Binder != null) {
+			m_Binder.requestToStart();
+		}
 	}
 	
 	private void initLeftMenu() {
@@ -440,8 +446,6 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		usager = dataSource.getPersonne(user.getId());
 		dataSource.close();
 		
-
-
 		// this.startActivity(new Intent(this, MainActivity.class));
 		setContentView(R.layout.activity_main);
 		
@@ -556,6 +560,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 
 	private void onSignedOut() {
 		Log.i(TAG, "onSignedOut");
+		
 		setContentView(R.layout.activity_connection);
 
 		mSignInButton = (SignInButton) findViewById(R.id.sign_in_button);

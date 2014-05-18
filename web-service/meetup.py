@@ -562,6 +562,21 @@ class GetMeetUpInfo(webapp.RequestHandler):
             
             for meetUp in listMeetUp:
                 if not meetUp.supprimer == "true" :
+                    
+                    listeParticipant = []
+                    
+                    for participant in meetUp.listParticipant:
+                        a = Utilisateur.all()
+                        a.filter("username =", participant)
+                        unParticipant = a.get()
+                        
+                        listeParticipant.append({
+                            'username' : unParticipant.username,
+                            'nom' : unParticipant.nom,
+                            'prenom' : unParticipant.prenom
+                        })
+                    
+                    
                     info = {
                         'key' : str(meetUp.key()),
                         'nom' : meetUp.nom,
@@ -571,7 +586,7 @@ class GetMeetUpInfo(webapp.RequestHandler):
                         'heureMax' : meetUp.heureMax,
                         'dateMin' : str(meetUp.dateMin),
                         'dateMax' : str(meetUp.dateMax),
-                        'listeParticipant' : meetUp.listParticipant,
+                        'listeParticipant' : listeParticipant,
                     }
                     
                     response = {
@@ -620,9 +635,9 @@ class ListMeetUp(webapp.RequestHandler):
                                 unParticipant = a.get()
                                 
                                 listeParticipant.append({
-                                    'username' : unParticipant.username,
-                                    'nom' : unParticipant.nom,
-                                    'prenom' : unParticipant.prenom
+                                    'username' : str(unParticipant.username),
+                                    'nom' : str(unParticipant.nom),
+                                    'prenom' : str(unParticipant.prenom)
                                 })
                         else:
                             listeParticipant = meetUp.listParticipant
@@ -748,7 +763,8 @@ class InviteUserAtMeetUp(webapp.RequestHandler):
                     #On ajoute l'ami
                     if aAjouter:
                         listeInvitation.append(idMeetUp)
-                        amiAjouter.listNotification.append("Vous êtes invité à un nouveau meetUp!")
+                        
+                        amiAjouter.listNotification.append("Vous pouvez participer a un nouveau meetUp!")
                         
                     amiAjouter.listDemandeMeetUp = listeInvitation
                     amiAjouter.put()
@@ -764,6 +780,14 @@ class InviteUserAtMeetUp(webapp.RequestHandler):
         except Exception, ex:
             logging.error(ex)
             self.error(500)
+            
+            response = {
+                MSG_RESULT : MSG_SUCCESS,
+                "message"    : str(ex)
+            }
+                
+            self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
+            self.response.out.write(response)
             
 class GetListeDemandesMeetUp(webapp.RequestHandler):
     def get(self):
@@ -847,13 +871,8 @@ class RefuseInviteMeetUp(webapp.RequestHandler):
             me = listUser.get()
             meetUp = db.get(self.request.get("meetUp"))
             
-            #On vérifie que j'ai bien été invité au meetUp
-            isInvite = 0
-            for invitation in me.listDemandeMeetUp:
-                if invitation == str(meetUp.key()):
-                    isInvite = 1
             
-            if me.password == self.request.get("password") and isInvite:
+            if me.password == self.request.get("password"):
                 
                 #J'enlève la demande d'invitation
                 listeDemandeMeetUp = []
@@ -863,7 +882,26 @@ class RefuseInviteMeetUp(webapp.RequestHandler):
                         
                 me.listDemandeMeetUp = listeDemandeMeetUp
                 
+                listeMeetUp = []
+                for unMeetUp in me.listMeetUp:
+                    if unMeetUp != str(meetUp.key()):
+                        listeMeetUp.append(unMeetUp)
+                        
+                me.listMeetUp = listeMeetUp
+                
                 me.put()
+                
+                
+                listeParticipant = []
+                for participant in meetUp.listParticipant:
+                    if participant != me.username:
+                        listeParticipant.append(participant)
+                
+                meetUp.listParticipant = listeParticipant
+                
+                meetUp.put()
+                
+                
                 
             response = {
                 MSG_RESULT : MSG_SUCCESS,

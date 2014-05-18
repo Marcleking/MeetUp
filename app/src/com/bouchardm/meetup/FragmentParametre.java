@@ -156,30 +156,36 @@ public class FragmentParametre extends Fragment implements View.OnClickListener,
     @SuppressWarnings("deprecation")
 	public void clickReadNotification(View v) {
     	// Texte dans "status bar", titre et texte de la notification.
-    	try {
-			String statusBarNotif = "statutBaR";
-			String titreNotif = "titre notification";
-			String texteNotif = "meetUp";
-	
-			// Création d'un nouvelle notification.
-			Notification notif = new Notification(R.drawable.ic_launcher, statusBarNotif, System.currentTimeMillis());
-			// Pour faire disparaître la notification lorsque l'utilisateur la clique.
-			notif.flags |= Notification.FLAG_AUTO_CANCEL;
-			
-			// Création d'une intention de retour lorsqu'on clique sur la notification.
-			Intent i = new Intent(getActivity(), ConnectionActivity.class);
-			// Ajout d'information dans l'intention.
-			i.putExtra(EXTRA_INFO, texteNotif);
-			// Création d'une nouvelle intention en suspens.
-			PendingIntent pi = PendingIntent.getActivity(getActivity(), 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
-
-			// Configuration de la notification.
-			notif.setLatestEventInfo(getActivity(), titreNotif, texteNotif, pi);
-			// Envoie de la notification.
-			this.notifMgr.notify(ID_NOTIF, notif);
-    	} catch (Exception e) {
-    		Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
-    	}
+//    	try {
+//			String statusBarNotif = "statutBaR";
+//			String titreNotif = "titre notification";
+//			String texteNotif = "meetUp";
+//	
+//			// Création d'un nouvelle notification.
+//			Notification notif = new Notification(R.drawable.ic_launcher, statusBarNotif, System.currentTimeMillis());
+//			// Pour faire disparaître la notification lorsque l'utilisateur la clique.
+//			notif.flags |= Notification.FLAG_AUTO_CANCEL;
+//			
+//			// Création d'une intention de retour lorsqu'on clique sur la notification.
+//			Intent i = new Intent(getActivity(), ConnectionActivity.class);
+//			// Ajout d'information dans l'intention.
+//			i.putExtra(EXTRA_INFO, texteNotif);
+//			// Création d'une nouvelle intention en suspens.
+//			PendingIntent pi = PendingIntent.getActivity(getActivity(), 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
+//
+//			// Configuration de la notification.
+//			notif.setLatestEventInfo(getActivity(), titreNotif, texteNotif, pi);
+//			// Envoie de la notification.
+//			this.notifMgr.notify(ID_NOTIF, notif);
+//    	} catch (Exception e) {
+//    		Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+//    	}
+    	
+    	new AsyncHttpGet().execute("http://appmeetup.appspot.com/add-notif?username="+usager.get_googleId()+"&notif=Notification!");
+    	
+    	
+    	
+    	
     }
 
 	@Override
