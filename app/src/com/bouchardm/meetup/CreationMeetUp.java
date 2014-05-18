@@ -113,13 +113,6 @@ public class CreationMeetUp extends Activity implements OnDateSetListener,
 		lieuEvenement = eventLocation.getText().toString();
 		duree = eventDuration.getText().toString();
 
-		Log.i("Création MeetUp", "Nom : " + nomEvenement);
-		Log.i("Création MeetUp", "Lieu : " + lieuEvenement);
-		Log.i("Création MeetUp", "Duree : " + duree);
-		Log.i("Création MeetUp", "Date debut : " + dateDebut);
-		Log.i("Création MeetUp", "Heure debut : " + heureDebut);
-		Log.i("Création MeetUp", "Date fin : " + dateFin);
-		Log.i("Création MeetUp", "Heure fin : " + heureFin);
 
 		if (dateDebut != null && heureDebut != null && dateFin != null
 				&& heureFin != null && nomEvenement != null

@@ -201,7 +201,7 @@ class GetInfoUser(webapp.RequestHandler):
                     'nom' : me.nom,
                     'prenom' : me.prenom,
                     'username' : me.username,
-                    
+                    'listMeetUp' : me.listMeetUp
                 }
             else:
                 response = {
@@ -473,6 +473,7 @@ class AddMeetUp(webapp.RequestHandler):
                 meetUp.heureMax = int(self.request.get("heureMax"))
                 meetUp.dateMin = date(int(arrayDateMin[0]), int(arrayDateMin[1]), int(arrayDateMin[2]))
                 meetUp.dateMax = date(int(arrayDateMax[0]), int(arrayDateMax[1]), int(arrayDateMax[2]))
+                meetUp.supprimer = "false"
                 
                 meetUp.put()
                 
@@ -488,6 +489,126 @@ class AddMeetUp(webapp.RequestHandler):
             logging.error(ex)
             self.error(500)
             
+    
+            
+class EditMeetUp(webapp.RequestHandler):
+    def get(self):
+        try:
+            listUser = Utilisateur.all()
+            listUser.filter("username =", self.request.get("moi"))
+            user = listUser.get()
+            arrayDateMin = None
+            arrayDateMax = None
+            
+            if user.password == self.request.get("password"):
+                if self.request.get("dateMin") != "" :
+                    dateMin = self.request.get("dateMin")
+                    arrayDateMin = dateMin.split('-')
+                
+                if self.request.get("dateMax") != "" :
+                    dateMax = self.request.get("dateMax")
+                    arrayDateMax = dateMax.split('-')
+                
+                listMeetUp = MeetUp.all()
+                listMeetUp.ancestor(user.key())
+                
+                response = {
+                    MSG_RESULT : MSG_SUCCESS,
+                    MSG_KEY    : "Le meetUp n'existe pas."
+                }
+                
+                for meetUp in listMeetUp:
+                    
+                    if str(meetUp.key()) == self.request.get("meetUp") and not meetUp.supprimer == "true" :
+                        
+                        #On entre les données
+                        if self.request.get("nom") != "" :
+                            meetUp.nom = self.request.get("nom")
+                        if self.request.get("lieu") != "" :
+                            meetUp.lieu = self.request.get("lieu")
+                        if self.request.get("duree") != "" :
+                            meetUp.duree = int(self.request.get("duree"))
+                        if self.request.get("heureMin") != "" :
+                            meetUp.heureMin = int(self.request.get("heureMin"))
+                        if self.request.get("heureMax") != "" :
+                            meetUp.heureMax = int(self.request.get("heureMax"))
+                        if arrayDateMin is not None:
+                            meetUp.dateMin = date(int(arrayDateMin[0]), int(arrayDateMin[1]), int(arrayDateMin[2]))
+                            meetUp.dateMax = date(int(arrayDateMax[0]), int(arrayDateMax[1]), int(arrayDateMax[2]))
+                        
+                        meetUp.put()
+                
+                        response = {
+                            MSG_RESULT : MSG_SUCCESS,
+                            "message"    : "Le meet up à bien été mis à jour!"
+                        }
+                        
+                self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
+                self.response.out.write(json.dumps(response))
+        
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+            
+class GetMeetUpInfo(webapp.RequestHandler):
+    def get(self):
+        try:
+            listMeetUp = MeetUp.all()
+            
+            response = {
+                MSG_RESULT : MSG_SUCCESS,
+                MSG_KEY    : "Le meetUp n'existe pas."
+            }
+            
+            for meetUp in listMeetUp:
+                if not meetUp.supprimer == "true" :
+                    
+                    listeParticipant = []
+                    
+                    for participant in meetUp.listParticipant:
+                        a = Utilisateur.all()
+                        a.filter("username =", participant)
+                        unParticipant = a.get()
+                        
+                        listeParticipant.append({
+                            'username' : unParticipant.username,
+                            'nom' : unParticipant.nom,
+                            'prenom' : unParticipant.prenom
+                        })
+                    
+                    
+                    info = {
+                        'key' : str(meetUp.key()),
+                        'nom' : meetUp.nom,
+                        'lieu' : meetUp.lieu,
+                        'duree' : meetUp.duree,
+                        'heureMin' : meetUp.heureMin,
+                        'heureMax' : meetUp.heureMax,
+                        'dateMin' : str(meetUp.dateMin),
+                        'dateMax' : str(meetUp.dateMax),
+                        'listeParticipant' : listeParticipant,
+                    }
+                    
+                    response = {
+                        MSG_RESULT : MSG_SUCCESS,
+                        "info"    : info
+                    }
+                    
+            self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
+            self.response.out.write(json.dumps(response))
+        
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+            
+            response = {
+                MSG_RESULT : MSG_SUCCESS,
+                MSG_KEY    : str(ex)
+            }
+                    
+            self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
+            self.response.out.write(json.dumps(response))
+        
 class ListMeetUp(webapp.RequestHandler):
     def get(self):
         try:
@@ -504,34 +625,36 @@ class ListMeetUp(webapp.RequestHandler):
                 for meetUp in listMeetUp.run():
                     listeParticipant = []
                     
-                    if self.request.get("withInfo") == "1":
+                    if not meetUp.supprimer == "true":
                         
-                        for participant in meetUp.listParticipant:
-                            a = Utilisateur.all()
-                            a.filter("username =", participant)
-                            unParticipant = a.get()
+                        if self.request.get("withInfo") == "1":
                             
-                            listeParticipant.append({
-                                'username' : unParticipant.username,
-                                'nom' : unParticipant.nom,
-                                'prenom' : unParticipant.prenom
-                            })
-                    else:
-                        listeParticipant = meetUp.listParticipant
+                            for participant in meetUp.listParticipant:
+                                a = Utilisateur.all()
+                                a.filter("username =", participant)
+                                unParticipant = a.get()
+                                
+                                listeParticipant.append({
+                                    'username' : str(unParticipant.username),
+                                    'nom' : str(unParticipant.nom),
+                                    'prenom' : str(unParticipant.prenom)
+                                })
+                        else:
+                            listeParticipant = meetUp.listParticipant
+                            
+                        unMeetUp = {
+                            'key': str(meetUp.key()),
+                            'nom': str(meetUp.nom),
+                            'lieu': str(meetUp.lieu),
+                            'duree': str(meetUp.duree),
+                            'heureMin': str(meetUp.heureMin),
+                            'heureMax': str(meetUp.heureMax),
+                            'dateMin': str(meetUp.dateMax),
+                            'dateMax': str(meetUp.dateMax),
+                            'participant': listeParticipant
+                        }
                         
-                    unMeetUp = {
-                        'key': str(meetUp.key()),
-                        'nom': str(meetUp.nom),
-                        'lieu': str(meetUp.lieu),
-                        'duree': str(meetUp.duree),
-                        'heureMin': str(meetUp.heureMin),
-                        'heureMax': str(meetUp.heureMax),
-                        'dateMin': str(meetUp.dateMax),
-                        'dateMax': str(meetUp.dateMax),
-                        'participant': listeParticipant
-                    }
-                    
-                    list.append(unMeetUp)
+                        list.append(unMeetUp)
                 
                 response = {
                     MSG_RESULT : MSG_SUCCESS,
@@ -561,15 +684,22 @@ class DeleteMeetUp(webapp.RequestHandler):
                 listMeetUp = MeetUp.all()
                 listMeetUp.ancestor(user.key())
                 
-                #On parcours les meetup de l'utilisateur, si le meetup est la on le supprime
-                for meetUp in listMeetUp.run():
-                    if str(meetUp.key()) == idMeetUp:
-                        db.delete(meetUp)
-                        
                 response = {
                     MSG_RESULT : MSG_SUCCESS,
-                    "message"    : "Le MeetUp a été supprimé!"
+                    "message"    : "Le MeetUp n'existe pas!"
                 }
+                
+                #On parcours les meetup de l'utilisateur, si le meetup est la on le supprime
+                for meetUp in listMeetUp.run():
+                    if str(meetUp.key()) == idMeetUp and not meetUp.supprimer == "true" :
+                        meetUp.supprimer = "true"
+                        
+                        meetUp.put()
+                        
+                        response = {
+                            MSG_RESULT : MSG_SUCCESS,
+                            "message"    : "Le MeetUp a été supprimé!"
+                        }
                     
                 self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
                 self.response.out.write(response)
@@ -618,9 +748,10 @@ class InviteUserAtMeetUp(webapp.RequestHandler):
             #On parcours tous les meetup de l'utilisateur
             listMeetUp = MeetUp.all()
             listMeetUp.ancestor(user.key())
+            
             for meetUp in listMeetUp.run():
                 #Si l'utilisateur à le droit d'invité l'ami
-                if str(meetUp.key()) == idMeetUp and user.password == motDePasse and isFriend:
+                if str(meetUp.key()) == idMeetUp and user.password == motDePasse and isFriend and not meetUp.supprimer == "true":
                     listeInvitation = amiAjouter.listDemandeMeetUp
                     
                     #On vérifie si l'ami est à ajouter
@@ -632,6 +763,8 @@ class InviteUserAtMeetUp(webapp.RequestHandler):
                     #On ajoute l'ami
                     if aAjouter:
                         listeInvitation.append(idMeetUp)
+                        
+                        amiAjouter.listNotification.append("Vous pouvez participer a un nouveau meetUp!")
                         
                     amiAjouter.listDemandeMeetUp = listeInvitation
                     amiAjouter.put()
@@ -647,6 +780,14 @@ class InviteUserAtMeetUp(webapp.RequestHandler):
         except Exception, ex:
             logging.error(ex)
             self.error(500)
+            
+            response = {
+                MSG_RESULT : MSG_SUCCESS,
+                "message"    : str(ex)
+            }
+                
+            self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
+            self.response.out.write(response)
             
 class GetListeDemandesMeetUp(webapp.RequestHandler):
     def get(self):
@@ -713,6 +854,58 @@ class AcceptInviteMeetUp(webapp.RequestHandler):
             response = {
                 MSG_RESULT : MSG_SUCCESS,
                 "message"    : "Votre participation a été enregistrée"
+            }
+                
+            self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
+            self.response.out.write(response)
+                
+        except Exception, ex:
+            logging.error(ex)
+            self.error(500)
+            
+class RefuseInviteMeetUp(webapp.RequestHandler):
+    def get(self):
+        try:
+            listUser = Utilisateur.all()
+            listUser.filter("username =", self.request.get("moi"))
+            me = listUser.get()
+            meetUp = db.get(self.request.get("meetUp"))
+            
+            
+            if me.password == self.request.get("password"):
+                
+                #J'enlève la demande d'invitation
+                listeDemandeMeetUp = []
+                for demandeMeetUp in me.listDemandeMeetUp:
+                    if demandeMeetUp != str(meetUp.key()):
+                        listeDemandeMeetUp.append(demandeMeetUp)
+                        
+                me.listDemandeMeetUp = listeDemandeMeetUp
+                
+                listeMeetUp = []
+                for unMeetUp in me.listMeetUp:
+                    if unMeetUp != str(meetUp.key()):
+                        listeMeetUp.append(unMeetUp)
+                        
+                me.listMeetUp = listeMeetUp
+                
+                me.put()
+                
+                
+                listeParticipant = []
+                for participant in meetUp.listParticipant:
+                    if participant != me.username:
+                        listeParticipant.append(participant)
+                
+                meetUp.listParticipant = listeParticipant
+                
+                meetUp.put()
+                
+                
+                
+            response = {
+                MSG_RESULT : MSG_SUCCESS,
+                "message"    : "Votre refus de participation a été enregistrée"
             }
                 
             self.response.headers["Content-Type"] = 'application/json; charset=utf-8'
@@ -831,27 +1024,30 @@ class ReadNotif(webapp.RequestHandler):
 
 
 def configurerHandler():
-    application = webapp.WSGIApplication([('/',                   MainPageHandler),
-                                          ('/add-user',           AddUser),
-                                          ('/add-calendar',       AddCalendar),
-                                          ('/delete-calendar',    RemoveCalendar),
-                                          ('/get-calendars',      ListCalendar),
-										  ('/get-users',	      GetUsers),
-                                          ('/get-user-info',      GetInfoUser),
-										  ('/get-friends',	      GetFriendList),
-										  ('/get-demandes',	      GetListeDemandes),
-                                          ('/ask-friend',         AskFriend),
-                                          ('/add-friend',         AddFriend),
-                                          ('/list-meetUp',        ListMeetUp),
-                                          ('/add-meetUp',         AddMeetUp),
-                                          ('/invite-friend',      InviteUserAtMeetUp),
-                                          ('/get-list-demande-meetUp', GetListeDemandesMeetUp),
-                                          ('/accept-meetUp',      AcceptInviteMeetUp),
-                                          ('/delete-meetUp',      DeleteMeetUp),
-                                          ('/delete-user-meetUp', removeUserFromMeetUp),
-                                          ('/add-notif',          AddNotif),
-                                          ('/read-notif',         ReadNotif),
-                                          ('/delete-friend',      DeleteFriend)],
+    application = webapp.WSGIApplication([('/',                         MainPageHandler),
+                                          ('/add-user',                 AddUser),
+                                          ('/add-calendar',             AddCalendar),
+                                          ('/delete-calendar',          RemoveCalendar),
+                                          ('/get-calendars',            ListCalendar),
+										  ('/get-users',	            GetUsers),
+                                          ('/get-user-info',            GetInfoUser),
+										  ('/get-friends', 	            GetFriendList),
+										  ('/get-demandes',             GetListeDemandes),
+                                          ('/ask-friend',               AskFriend),
+                                          ('/add-friend',               AddFriend),
+                                          ('/list-meetUp',              ListMeetUp),
+                                          ('/add-meetUp',               AddMeetUp),
+                                          ('/edit-meetUp',              EditMeetUp),
+                                          ('/info-meetUp',              GetMeetUpInfo),
+                                          ('/invite-friend',            InviteUserAtMeetUp),
+                                          ('/get-list-demande-meetUp',  GetListeDemandesMeetUp),
+                                          ('/accept-meetUp',            AcceptInviteMeetUp),
+                                          ('/refuse-meetUp',            RefuseInviteMeetUp),
+                                          ('/delete-meetUp',            DeleteMeetUp),
+                                          ('/delete-user-meetUp',       removeUserFromMeetUp),
+                                          ('/add-notif',                AddNotif),
+                                          ('/read-notif',               ReadNotif),
+                                          ('/delete-friend',            DeleteFriend)],
                                          debug=True)
     util.run_wsgi_app(application)
     

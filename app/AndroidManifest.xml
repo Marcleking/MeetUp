@@ -59,5 +59,6 @@
             android:name="com.bouchardm.meetup.ListeParticipants"
             android:label="@string/title_activity_liste_participants" >
         </activity>
+        <service android:name=".service.NotificationService"/>
     </application>
 </manifest>

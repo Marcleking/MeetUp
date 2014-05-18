@@ -29,6 +29,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class FragmentMeetUp extends ListFragment implements View.OnClickListener {
 	public final static int CREATE_MEETUP = 0;
@@ -61,7 +62,7 @@ public class FragmentMeetUp extends ListFragment implements View.OnClickListener
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-		
+	
 		if(savedInstanceState != null){
 			usager = Personne.ParseStringToPerson(savedInstanceState.getString("usager"));
 		}
@@ -174,7 +175,7 @@ public class FragmentMeetUp extends ListFragment implements View.OnClickListener
 				
 				getActivity().startActivityForResult(new Intent(rootView.getContext(), CreationMeetUp.class)
 					.putExtra("EXTRA_USER_ID",usager.get_googleId())
-					.putExtra("EXTRA_BUTTON_TEXT", "Modifier le MeetUp")
+					.putExtra("EXTRA_BUTTON_TEXT", getResources().getString(R.string.btnModifierMeetUp))
 					.putExtra("EXTRA_MEETUP_A_MODIFIER", MeetUp.ParseMeetUpToString(meetUpModifie)),FragmentMeetUp.UPDATE_MEETUP);
 				
 				return true;
@@ -270,7 +271,7 @@ public class FragmentMeetUp extends ListFragment implements View.OnClickListener
 	public void btnAjoutMeetUp(View source)
 	{
 		getActivity().startActivityForResult(new Intent(rootView.getContext(), CreationMeetUp.class)
-			.putExtra("EXTRA_USER_ID",usager.get_googleId()).putExtra("EXTRA_BUTTON_TEXT", "Cr�er le MeetUp"),FragmentMeetUp.CREATE_MEETUP);
+			.putExtra("EXTRA_USER_ID",usager.get_googleId()).putExtra("EXTRA_BUTTON_TEXT", getResources().getString(R.string.createMeetUp)),FragmentMeetUp.CREATE_MEETUP);
 	}
 	
 	public void onActivityResult(int p_requestCode, int p_resultCode, Intent p_data){

@@ -45,6 +45,9 @@
     <string name="createMeetUp">Créer le MeetUp</string>
     
     <string name="btnAjoutMeetUp">Ajouter un MeetUp</string>
+    <string name="btnCreerMeetUp">Créer le MeetUp</string>
+    <string name="btnModifierMeetUp">Modifier le MeetUp</string>
+    
     
     <string name="menu_participer">Je vais participer</string>
     <string name="menu_peut_etre">Je vais peut-être participer</string>

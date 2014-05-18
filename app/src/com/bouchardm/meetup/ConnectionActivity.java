@@ -33,6 +33,7 @@ import org.json.JSONObject;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.bouchardm.meetup.classes.Personne;
 import com.bouchardm.meetup.classes.network;
+import com.bouchardm.meetup.service.NotificationService;
 import com.bouchardm.meetup.sqlite.PersonneDataSource;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -49,12 +50,15 @@ import com.google.api.services.calendar.*;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.IntentSender.SendIntentException;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.Contacts.People;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
@@ -77,6 +81,8 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		ConnectionCallbacks, OnConnectionFailedListener, View.OnClickListener {
 
 	private static final String TAG = "android-plus-quickstart";
+
+    private NotificationService.WordServiceBinder m_Binder;
 
 	private static final int STATE_DEFAULT = 0;
 	private static final int STATE_SIGN_IN = 1;
@@ -204,7 +210,6 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		// Horaire
 		case 1:
 			Fragment horaireFragment = new FragmentHoraire();
-			activeFragment = horaireFragment;
 			((FragmentHoraire)horaireFragment).setmGoogleApiClient(mGoogleApiClient);
 			fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment,"fragment").commit();
@@ -213,7 +218,6 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		// MeetUp
 		case 2:
 			Fragment meetUpFragment = new FragmentMeetUp();
-			activeFragment = meetUpFragment;
 			((FragmentMeetUp)meetUpFragment).setUsager(usager);
 			fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction().replace(R.id.content_frame,meetUpFragment,"fragment").commit();
@@ -224,15 +228,21 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 			//this.startActivity(new Intent(this, Amis.class));
 			
 			Fragment friendFragment = new FragmentAmis();
-			activeFragment = friendFragment;
 			((FragmentAmis) friendFragment).setmGoogleApiClient(mGoogleApiClient);
 			fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment,"fragment").commit();
-			
+			break;
+		// Paramï¿½tre
+		 case 4:
+		 	friendFragment = new FragmentParametre();
+		 	((FragmentParametre) friendFragment).setmGoogleApiClient(mGoogleApiClient);
+		 	fragmentManager = getSupportFragmentManager();
+		 	fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment,"fragment").commit();
 			
 			break;
-		// Déconnexion
+		// DÃ©connexion
 		case 5:
+			
 			Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
 			mGoogleApiClient.disconnect();
 			mGoogleApiClient.connect();
@@ -246,7 +256,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	private void filtreAmi(int position) {
 		Fragment horaireFragment = new FragmentAccueil();
 		
-		// on ajoute l'ami à filtré
+		// on ajoute l'ami ï¿½ filtrï¿½
 		Bundle bundle = new Bundle();
 		bundle.putString("filtre", mRightMenuItems[position]);
 		horaireFragment.setArguments(bundle);
@@ -281,7 +291,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		if(activeFragment != null){
 			Log.i(TAG,"onSaveHasFragment");
 			//activeFragment.onSaveInstanceState(outState);
-			getSupportFragmentManager().putFragment(outState, "fragment", activeFragment);
+			//getSupportFragmentManager().putFragment(outState, "fragment", activeFragment);
 		}
 	}
 	
@@ -333,7 +343,17 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 			}
 		};
 		
-
+		// crï¿½ation du service
+		
+		
+		Intent serviceNotification = new Intent(this, NotificationService.class);
+		serviceNotification.putExtra("idGoogle", usager.get_googleId());
+		serviceNotification.putExtra("passwordGoogle", usager.get_securityNumber());
+		this.getApplicationContext().startService(serviceNotification);
+		
+		if (m_Binder != null) {
+			m_Binder.requestToStart();
+		}
 	}
 	
 	private void initLeftMenu() {
@@ -399,7 +419,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		Log.i(TAG, "onConnected");
 		user = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
 		
-		// Vérification de l'existance de l'usager dans la BD locale
+		// Vï¿½rification de l'existance de l'usager dans la BD locale
 		PersonneDataSource dataSource = new PersonneDataSource(this);
 		dataSource.open();
 		
@@ -536,6 +556,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 
 	private void onSignedOut() {
 		Log.i(TAG, "onSignedOut");
+		
 		setContentView(R.layout.activity_connection);
 
 		mSignInButton = (SignInButton) findViewById(R.id.sign_in_button);
@@ -656,4 +677,17 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	    return result;
 	
 	}
+	
+	 private class WordServiceConnection implements ServiceConnection{
+	    	
+		@Override	
+		public void onServiceConnected(ComponentName p_name, IBinder p_service) {
+			// Interface publique du service.
+			m_Binder = (NotificationService.WordServiceBinder) p_service;
+		}
+		@Override  
+		public void onServiceDisconnected(ComponentName p_name) {
+			m_Binder = null;
+		}
+    }
 }
