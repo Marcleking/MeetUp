@@ -129,9 +129,9 @@ L'utilisateur qui supprime un meetUp doit être inviter à ce meetUp
 ##/delete-user-meetUp
 Pour supprimer sa participation à un meetUp
 **Paramètre**
-* moi
-* password
-* meetUp
+* moi      (username de l'utilisateur)
+* password (mot de passe de cet utilisateur)
+* meetUp  (key:key du meetUp)
 
 **Retourne**
 * message
@@ -139,8 +139,8 @@ Pour supprimer sa participation à un meetUp
 ##/add-notif
 Ajoute une notification à un utilisateur
 **Paramètre**
-* username
-* notif
+* username (username de l'utilisateur)
+* notif    (notification à envoyer)
 
 **Retourne**
 *message
@@ -148,8 +148,8 @@ Ajoute une notification à un utilisateur
 ##/read-notif
 Lit les notifications d'un utilisateur (Les notifications sont supprimer après)
 **Paramètre**
-* moi
-* password
+* moi      (username de l'utilisateur)
+* password (mot de passe de cet utilisateur)
 
 **Retourne**
 * notif (liste des notifications)
@@ -160,9 +160,9 @@ http://appmeetup.appspot.com/read-notif?moi=marcantoine.bouchardm@gmail.com&pass
 ##/delete-friend
 Supprime un ami
 **Paramètre**
-* moi
-* password
-* supprime
+* moi      (username de l'utilisateur)
+* password (mot de passe de cet utilisateur)
+* supprime (username de l'utilisateur à supprimer)
 
 **Retourne**
 * message
@@ -170,7 +170,7 @@ Supprime un ami
 ##/get-users
 Retourne la liste de tout les utilisateurs
 **Paramètre**
-* username
+* username (username de l'utilisateur)
 
 **Retourne**
 * personnes
@@ -178,7 +178,7 @@ Retourne la liste de tout les utilisateurs
 ##/get-friends
 Retourne la liste d'ami pour un utilisateur
 **Paramètre**
-* username
+* username (username de l'utilisateur)
 
 **Retourne**
 * amis
@@ -186,7 +186,7 @@ Retourne la liste d'ami pour un utilisateur
 ##/get-demandes
 Retourne la liste des demandes d'un utilisateur
 **Paramètre**
-* username
+* username (username de l'utilisateur)
 
 **Retourne**
 * demandes
