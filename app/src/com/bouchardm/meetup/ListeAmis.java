@@ -13,6 +13,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.bouchardm.meetup.classes.Ami;
 import com.bouchardm.meetup.classes.network;
 
 import android.os.AsyncTask;
@@ -38,7 +39,7 @@ public class ListeAmis extends ListActivity {
 	/**
 	 * Attributs de la view
 	 */
-	private ArrayList<String> m_Tokens = null;
+	private ArrayList<Ami> m_Tokens = null;
 	private ArrayList<RowModel> m_RowModels = null;
 	private LigneAdapter m_adapter;
 	
@@ -49,7 +50,7 @@ public class ListeAmis extends ListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.meet_up_creation_liste_amis);
 		
-		m_Tokens = new ArrayList<String>();
+		m_Tokens = new ArrayList<Ami>();
 		m_RowModels = new ArrayList<RowModel>();
 		
 		m_adapter = new LigneAdapter();
@@ -60,52 +61,42 @@ public class ListeAmis extends ListActivity {
 			googleId = extras.getString("EXTRA_USER_ID");
 		}
 		
-		try{
-			network.AsyncGetFriends getFriendList = new network.AsyncGetFriends();
-			getFriendList.setUser_id(googleId);
-			ArrayList<String> listeAmis = getFriendList.execute().get();
-			
-			for(String ami : listeAmis ){
-				m_Tokens.add(ami);
-			}
-		}
-		catch(Exception e){
-			m_Tokens.add("Erreur dans la récupération des amis");
-		}
 		
-		for (String token : m_Tokens) {
-			m_RowModels.add(new RowModel(token, false));
-		}
+		network.AsyncGetFriends getFriendList = new network.AsyncGetFriends();
+		getFriendList.setUser_id(googleId);
+		getFriendList.setActivityToUpdate(this);
+		getFriendList.execute();
 		
-		if(extras != null && extras.containsKey("EXTRA_MEETUP_AMI") && extras.getStringArrayList("EXTRA_MEETUP_AMI") != null){ 
-			for(RowModel ligne : m_RowModels)
-			{
-				for(String ami : extras.getStringArrayList("EXTRA_MEETUP_AMI")){
-					Log.i("Check added friends", ligne.getContent() + " : " + ami);
-					if (ligne.getContent().equals(ami)){
-						ligne.setIsActivate(true);
-						Log.i("Check added friends", "Combinaison trouvée !");
-					}
-				}
-			}
-		}
+		
 		
 	}
 	
 	public void okAmis(View source)
 	{
-		ArrayList<String> amis = null;
+		ArrayList<Ami> amis = null;
 		if(m_RowModels.size() != 0){
-			amis = new ArrayList<String>();
+			amis = new ArrayList<Ami>();
 			for(RowModel ligne : m_RowModels){
 				if(ligne.isActivate()){
-					amis.add(ligne.getContent());
+					amis.add(new Ami(
+							ligne.getKey(),
+							ligne.getContent().split(" ")[0],
+							ligne.getContent().split(" ")[1]));
 				}
 			}
 		}
+		
+		ArrayList<String> parseAmis = null;
+		if(amis.size() != 0){
+			parseAmis = new ArrayList<String>();
+			for(Ami ami: amis){
+				parseAmis.add(Ami.AmiToString(ami));
+			}
+		}
+		
 		// TODO : Renvoyer des objets "Ami" plutôt qu'une liste de username
 		Intent i = new Intent();
-		i.putExtra("EXTRA_MEETUP_AMI", amis);
+		i.putExtra("EXTRA_MEETUP_AMI", parseAmis);
 		this.setResult(RESULT_OK, i);
 		this.finish();
 	}
@@ -118,7 +109,14 @@ public class ListeAmis extends ListActivity {
 	{
 		super.onSaveInstanceState(p_outState);
 		p_outState.putParcelableArrayList("rowModel", m_RowModels);
-		p_outState.putStringArrayList("token", m_Tokens);
+		
+		ArrayList<String> parseToken = new ArrayList<String>();
+		
+		for(Ami ami: m_Tokens){
+			parseToken.add(Ami.AmiToString(ami));
+		}
+		
+		p_outState.putStringArrayList("token", parseToken);
 	}
 	
 	/**
@@ -129,7 +127,11 @@ public class ListeAmis extends ListActivity {
 	{
 		if (p_state != null) {
 			m_RowModels = p_state.getParcelableArrayList("rowModel");
-			m_Tokens = p_state.getStringArrayList("token");
+			ArrayList<String> parseTokens = p_state.getStringArrayList("token");
+			
+			for(String token:parseTokens){
+				this.m_Tokens.add(Ami.StringToAmi(token));
+			}
 			
 			m_adapter = new LigneAdapter();
 			this.setListAdapter(m_adapter);
@@ -158,7 +160,7 @@ public class ListeAmis extends ListActivity {
 	 * @author Marcleking
 	 *
 	 */
-	public class LigneAdapter extends ArrayAdapter<String> {
+	public class LigneAdapter extends ArrayAdapter<Ami> {
 		/**
 		 * Contructeur
 		 */
@@ -197,10 +199,12 @@ public class ListeAmis extends ListActivity {
 	 */
 	public static class RowModel implements Parcelable{
 		private String m_Content;
+		private String m_key;
 		private boolean m_isActivate;
 		
-		public RowModel(String content, boolean activate) {
+		public RowModel(String content, String key, boolean activate) {
 			this.m_Content = content;
+			this.m_key = key;
 			this.m_isActivate = activate;
 		}
 		
@@ -220,6 +224,14 @@ public class ListeAmis extends ListActivity {
 			this.m_isActivate = isActivate;
 		}
 
+		public String getKey() {
+			return m_key;
+		}
+
+		public void setKey(String m_key) {
+			this.m_key = m_key;
+		}
+
 		@Override
 		public int describeContents() {
 			// TODO Auto-generated method stub
@@ -229,18 +241,44 @@ public class ListeAmis extends ListActivity {
 		@Override
 		public void writeToParcel(Parcel dest, int flags) {
 			dest.writeString(m_Content);
+			dest.writeString(m_key);
 			dest.writeByte((byte) (m_isActivate ? 1 : 0));  
 		}
 		
 		public static final Parcelable.Creator<RowModel> CREATOR = new Parcelable.Creator<RowModel>() 
 		{
 	        public RowModel createFromParcel(Parcel in) {
-	            return new RowModel(in.readString(), in.readByte() != 0);
+	            return new RowModel(in.readString(), in.readString(), in.readByte() != 0);
 	        }
 
 	        public RowModel[] newArray(int size) {
 	            return new RowModel[size];
 	        }
 	    };
+	}
+
+
+	public ArrayList<Ami> getM_Tokens() {
+		return m_Tokens;
+	}
+
+	public void setM_Tokens(ArrayList<Ami> m_Tokens) {
+		this.m_Tokens = m_Tokens;
+	}
+
+	public ArrayList<RowModel> getM_RowModels() {
+		return m_RowModels;
+	}
+
+	public void setM_RowModels(ArrayList<RowModel> m_RowModels) {
+		this.m_RowModels = m_RowModels;
+	}
+
+	public LigneAdapter getM_adapter() {
+		return m_adapter;
+	}
+
+	public void setM_adapter(LigneAdapter m_adapter) {
+		this.m_adapter = m_adapter;
 	}
 }

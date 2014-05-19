@@ -58,8 +58,7 @@ public class Personne {
 	
 	private String generateSecurityNumber(String googleId){
 		String sha1 = "";
-		Random rn = new Random();
-		googleId += rn.nextInt();
+		googleId += "jesuisunmotdepassebcptropsecuritairelol";
 		try{
 			MessageDigest crypt = MessageDigest.getInstance("SHA-1");
 			crypt.reset();

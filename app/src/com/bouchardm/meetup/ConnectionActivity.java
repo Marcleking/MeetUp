@@ -212,21 +212,15 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		switch(position){
 		// Horaire
 		case 1:
-			try {
-				Fragment horaireFragment = new FragmentHoraire();
-				activeFragment = horaireFragment;
-				((FragmentHoraire) horaireFragment).setmGoogleApiClient(mGoogleApiClient);
-				fragmentManager = getSupportFragmentManager();
-				fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment,"fragment").commit();
-			} catch (Exception e) {
-				Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-			}
+			Fragment horaireFragment = new FragmentHoraire();
+			((FragmentHoraire)horaireFragment).setmGoogleApiClient(mGoogleApiClient);
+			fragmentManager = getSupportFragmentManager();
+			fragmentManager.beginTransaction().replace(R.id.content_frame,horaireFragment,"fragment").commit();
 			//this.startActivity(new Intent(this, Horaire.class));
 			break;
 		// MeetUp
 		case 2:
 			Fragment meetUpFragment = new FragmentMeetUp();
-			activeFragment = meetUpFragment;
 			((FragmentMeetUp)meetUpFragment).setUsager(usager);
 			fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction().replace(R.id.content_frame,meetUpFragment,"fragment").commit();
@@ -236,7 +230,6 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		case 3:
 			//this.startActivity(new Intent(this, Amis.class));
 			Fragment friendFragment = new FragmentAmis();
-			activeFragment = friendFragment;
 			((FragmentAmis) friendFragment).setmGoogleApiClient(mGoogleApiClient);
 			fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment,"fragment").commit();
@@ -244,13 +237,12 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		// Paramètre
 		 case 4:
 		 	friendFragment = new FragmentParametre();
-		 	activeFragment = friendFragment;
 		 	((FragmentParametre) friendFragment).setmGoogleApiClient(mGoogleApiClient);
 		 	fragmentManager = getSupportFragmentManager();
 		 	fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment,"fragment").commit();
 			
 			break;
-		// Déconnexion
+		// DÃ©connexion
 		case 5:
 			
 			Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
@@ -265,7 +257,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	private void filtreAmi(int position) {
 		Fragment horaireFragment = new FragmentAccueil();
 		
-		// on ajoute l'ami à filtré
+		// on ajoute l'ami ï¿½ filtrï¿½
 		Bundle bundle = new Bundle();
 		bundle.putString("filtre", mRightMenuItems[position]);
 		horaireFragment.setArguments(bundle);
@@ -354,7 +346,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 			}
 		};
 		
-		// création du service
+		// crï¿½ation du service
 		
 		
 		Intent serviceNotification = new Intent(this, NotificationService.class);
@@ -385,17 +377,14 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	}
 	
 	private void initRightMenu(String[] listAmi) {
-		if (listAmi.length > 0) {
+
+		if(listAmi != null && listAmi.length > 0){
 			this.mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 			this.mRightDrawerList = (ListView) findViewById(R.id.right_drawer);
 			
-			this.mRightDrawerList.setAdapter(new ArrayAdapter<String>(this,
-				android.R.layout.simple_list_item_1, listAmi));
-			
+			this.mRightDrawerList.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, listAmi));
 			this.mRightDrawerList.setOnItemClickListener(new DrawerItemClickListenerRight());
 		}
-		
-		
 	}
 	
 	/**
@@ -435,6 +424,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		String email = Plus.AccountApi.getAccountName(mGoogleApiClient);
 		
 		// Vérification de l'existance de l'usager dans la BD locale
+
 		PersonneDataSource dataSource = new PersonneDataSource(this);
 		dataSource.open();
 		

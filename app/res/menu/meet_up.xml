@@ -4,11 +4,11 @@
     <item
         android:id="@+id/menu_participe"
         android:title="@string/menu_participer" />
-    
+    <!-- 
     <item
         android:id="@+id/menu_peutEtre"
         android:title="@string/menu_peut_etre" />
- 
+  	-->
     <item 
         android:id="@+id/menu_nePasParticiper"
         android:title="@string/menu_refuser" />

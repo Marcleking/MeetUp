@@ -2,15 +2,24 @@ package com.bouchardm.meetup.classes;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.bouchardm.meetup.FragmentMeetUp;
+import com.bouchardm.meetup.FragmentMeetUp.LigneMonEvenementAdapter;
+import com.bouchardm.meetup.FragmentMeetUp.RowInvitationModel;
+import com.bouchardm.meetup.FragmentMeetUp.RowMonEvenementModel;
+import com.bouchardm.meetup.ListeAmis.RowModel;
+import com.bouchardm.meetup.ListeAmis;
+import com.bouchardm.meetup.R;
 import com.bouchardm.meetup.util.JSONParser;
 import com.bouchardm.meetup.classes.MeetUp;
 import com.google.android.gms.plus.model.people.Person;
@@ -73,7 +82,7 @@ public class network {
 				HttpGet getMethod = new HttpGet(uri);
 				
 				String body = m_ClientHttp.execute(getMethod, new BasicResponseHandler());
-				Log.i("AddUser", "Résultat : " + body);
+				Log.i("AddUser", "RÃ©sultat : " + body);
 				
 				googleKey = JSONParser.parseSingleString(body, "key");
 			}
@@ -94,9 +103,10 @@ public class network {
 	 * @author Francis Ouellet
 	 * 
 	 * */
-	public static class AsyncGetFriends extends AsyncTask<Void, Void, ArrayList<String>>{
+	public static class AsyncGetFriends extends AsyncTask<Void, Void, ArrayList<Ami>>{
 		
 		private String user_id;
+		private ListeAmis activityToUpdate;
 		
 		public String getUser_id() {
 			return user_id;
@@ -106,14 +116,22 @@ public class network {
 			this.user_id = user_id;
 		}
 
+		public ListeAmis getActivityToUpdate() {
+			return activityToUpdate;
+		}
+
+		public void setActivityToUpdate(ListeAmis activityToUpdate) {
+			this.activityToUpdate = activityToUpdate;
+		}
+
 		private HttpClient m_ClientHttp = new DefaultHttpClient();
 		
 		@Override
-		protected ArrayList<String> doInBackground(Void... unused) {
-			ArrayList<String> liste = null;
+		protected ArrayList<Ami> doInBackground(Void... unused) {
+			ArrayList<Ami> liste = null;
 			
 			try{
-				URI uri = new URI("http",WEB_SERVICE_URL,"/get-friends", "username=" + user_id.toString(), null);
+				URI uri = new URI("http",WEB_SERVICE_URL,"/get-friends", "username=" + user_id.toString() + "&withInfo=1", null);
 				HttpGet getMethod = new HttpGet(uri);
 				
 				String body = m_ClientHttp.execute(getMethod, new BasicResponseHandler());
@@ -127,14 +145,25 @@ public class network {
 		}
 		
 		@Override
-		protected void onPostExecute(ArrayList<String> liste){
-			String message = "Liste d'amis : ";
-			if(liste != null){
-				for(int i = 0; i < liste.size(); i++){
-					message += liste.get(i) + ", ";
+		protected void onPostExecute(ArrayList<Ami> liste){
+			activityToUpdate.setM_Tokens(liste);
+			for(Ami ami: liste){
+				activityToUpdate.getM_RowModels().add(new RowModel(ami.get_nom() + " " + ami.get_prenom(),ami.get_id(),false));
+			}
+			
+			if(activityToUpdate.getIntent().getExtras() != null && 
+					activityToUpdate.getIntent().getExtras().containsKey("EXTRA_MEETUP_AMI") && 
+					activityToUpdate.getIntent().getExtras().getStringArrayList("EXTRA_MEETUP_AMI") != null){ 
+				for(RowModel ligne : activityToUpdate.getM_RowModels())
+				{
+					for(String ami : activityToUpdate.getIntent().getExtras().getStringArrayList("EXTRA_MEETUP_AMI")){
+						if (ligne.getKey().equals(ami)){
+							ligne.setIsActivate(true);
+						}
+					}
 				}
 			}
-			Log.i("GetFriends",message);
+			
 		}
 	}
 	
@@ -254,6 +283,110 @@ public class network {
 		
 	}
 	
+	public static class AsyncModifierMeetUp extends AsyncTask<Void, Void, String>{
+		private String username;
+		private String securityNumber;
+		private String meetUpKey;
+		private String nom;
+		private String lieu;
+		private String duree;
+		private String dateMin;
+		private String heureMin;
+		private String dateMax;
+		private String heureMax;
+		
+		private HttpClient m_ClientHttp = new DefaultHttpClient();
+		
+		@Override
+		protected String doInBackground(Void... unused) {
+			String message = "";
+			
+			try{
+				URI uri = new URI("http",WEB_SERVICE_URL,"/edit-meetUp",
+						"moi=" + this.username +
+						"&password=" + this.securityNumber +
+						"&meetUp=" + this.meetUpKey +
+						"&nom=" + this.nom +
+						"&lieu=" + this.lieu +
+						"&duree=" + this.duree +
+						"&heureMin=" + this.heureMin +
+						"&heureMax=" + this.heureMax +
+						"&dateMin=" + this.dateMin +
+						"&dateMax=" + this.dateMax, null);
+				Log.i("ModifierMeetUp",uri.toString());
+				HttpGet getMethod = new HttpGet(uri);
+				
+				String body = m_ClientHttp.execute(getMethod,new BasicResponseHandler());
+				message = JSONParser.parseSingleString(body, "message");
+			}
+			catch(Exception e){
+				Log.i("ModifierMeetUpError",e.getMessage());
+			}
+			return message;
+		}
+		
+		public String getUsername() {
+			return username;
+		}
+		public void setUsername(String username) {
+			this.username = username;
+		}
+		public String getSecurityNumber() {
+			return securityNumber;
+		}
+		public void setSecurityNumber(String securityNumber) {
+			this.securityNumber = securityNumber;
+		}
+		public String getMeetUpKey() {
+			return meetUpKey;
+		}
+		public void setMeetUpKey(String meetUpKey) {
+			this.meetUpKey = meetUpKey;
+		}
+		public String getNom() {
+			return nom;
+		}
+		public void setNom(String nom) {
+			this.nom = nom;
+		}
+		public String getLieu() {
+			return lieu;
+		}
+		public void setLieu(String lieu) {
+			this.lieu = lieu;
+		}
+		public String getDuree() {
+			return duree;
+		}
+		public void setDuree(String duree) {
+			this.duree = duree;
+		}
+		public String getDateMin() {
+			return dateMin;
+		}
+		public void setDateMin(String dateMin) {
+			this.dateMin = dateMin;
+		}
+		public String getHeureMin() {
+			return heureMin;
+		}
+		public void setHeureMin(String heureMin) {
+			this.heureMin = heureMin;
+		}
+		public String getDateMax() {
+			return dateMax;
+		}
+		public void setDateMax(String dateMax) {
+			this.dateMax = dateMax;
+		}
+		public String getHeureMax() {
+			return heureMax;
+		}
+		public void setHeureMax(String heureMax) {
+			this.heureMax = heureMax;
+		}
+	}
+	
 	public static class AsyncAddFriendToMeetUp extends AsyncTask<Void, Void, String>{
 		private String owner;
 		private String securityNumber;
@@ -272,14 +405,14 @@ public class network {
 						"&password=" + this.securityNumber +
 						"&ami=" + friendId +
 						"&meetUp=" + meetUpKey, null);
-				
+				Log.i("AddFriendToMeetUp",uri.toString());
 				HttpGet getMethod = new HttpGet(uri);
 				
 				String body = m_ClientHttp.execute(getMethod,new BasicResponseHandler());
 				message = JSONParser.parseSingleString(body, "message");
 			}
 			catch(Exception e){
-				Log.i("AddMeetUpError",e.getCause().toString());
+				Log.i("AddFriendToMeetUpError",e.getMessage());
 			}
 			return message;
 		}
@@ -313,6 +446,7 @@ public class network {
 	public static class AsyncGetMyMeetUp extends AsyncTask<Void, Void, ArrayList<MeetUp>>{
 		private String username;
 		private String securityNumber;
+		private FragmentMeetUp fragmentToUpdate;
 		
 		private HttpClient m_ClientHttp = new DefaultHttpClient();
 		
@@ -324,7 +458,7 @@ public class network {
 				URI uri = new URI("http",WEB_SERVICE_URL,"/list-meetUp",
 						"moi=" + this.username +
 						"&password=" + this.securityNumber +
-						"&withinfo=1"
+						"&withInfo=1"
 						, null);
 				Log.i("GetMeetUp", uri.toString());
 				HttpGet getMethod = new HttpGet(uri);
@@ -336,6 +470,30 @@ public class network {
 				Log.i("GetMyMeetUpsError",e.getMessage());
 			}
 			return meetUp;
+		}
+		
+		@Override
+		protected void onPostExecute(ArrayList<MeetUp> listeMeetUp){
+			fragmentToUpdate.setMesMeetUp(listeMeetUp);
+			fragmentToUpdate.set_monEvenementAdapter(fragmentToUpdate.new LigneMonEvenementAdapter());
+			fragmentToUpdate.getListeMesMeetUp().setAdapter(fragmentToUpdate.get_monEvenementAdapter());
+			
+			for(MeetUp token : fragmentToUpdate.getMesMeetUp()){
+				String message;
+				if(token.get_invites().size() != 1)
+					message = " invitÃ©s participents.";
+				else
+					message = " invitÃ© participe.";
+				fragmentToUpdate.getRowMonEvenementModels().add(new RowMonEvenementModel(
+						token.get_nom(),
+						token.get_invites().size() + message, 
+						token.get_lieu(),
+						token.get_dateMin(),
+						token.get_heureMin()+"",
+						token.get_dateMax(),
+						token.get_heureMax()+""));
+			}
+			
 		}
 
 		public String getUsername() {
@@ -352,6 +510,382 @@ public class network {
 
 		public void setSecurityNumber(String securityNumber) {
 			this.securityNumber = securityNumber;
+		}
+
+		public FragmentMeetUp getFragmentToUpdate() {
+			return fragmentToUpdate;
+		}
+
+		public void setFragmentToUpdate(FragmentMeetUp fragmentToUpdate) {
+			this.fragmentToUpdate = fragmentToUpdate;
+		}
+	}
+	
+	public static class AsyncDeleteMeetUp extends AsyncTask<Void, Void, String>{
+
+		private String username;
+		private String securityNumber;
+		private String meetUpId;
+		
+		private HttpClient m_ClientHttp = new DefaultHttpClient();
+		
+		@Override
+		protected String doInBackground(Void... params) {
+			String message = "";
+			
+			try{
+				URI uri = new URI("http",WEB_SERVICE_URL,"/delete-meetUp",
+						"moi=" + username +
+						"&password=" + securityNumber +
+						"&supprime=" + meetUpId, null);
+				HttpGet getMethod = new HttpGet(uri);
+				String body = m_ClientHttp.execute(getMethod,new BasicResponseHandler());
+				message = JSONParser.parseSingleString(body, "message");
+			}
+			catch(Exception e){Log.i("GetMyMeetUpsError",e.getMessage());}
+			
+			return message;
+		}
+
+		public String getUsername() {
+			return username;
+		}
+
+		public void setUsername(String username) {
+			this.username = username;
+		}
+
+		public String getSecurityNumber() {
+			return securityNumber;
+		}
+
+		public void setSecurityNumber(String securityNumber) {
+			this.securityNumber = securityNumber;
+		}
+
+		public String getMeetUpId() {
+			return meetUpId;
+		}
+
+		public void setMeetUpId(String meetUpId) {
+			this.meetUpId = meetUpId;
+		}
+		
+	}
+	
+	public static class AsyncGetMyMeetUpInvitations extends AsyncTask<Void, Void, ArrayList<String>>{
+		private String username;
+		private String securityNumber;
+		private FragmentMeetUp fragmentToUpdate;
+		
+		private HttpClient m_ClientHttp = new DefaultHttpClient();
+		
+		@Override
+		protected ArrayList<String> doInBackground(Void... params) {
+			ArrayList<String> listeMeetUpKey = null;
+			
+			try{
+				URI uri = new URI("http",WEB_SERVICE_URL,"/get-list-demande-meetUp",
+						"username=" + username +
+						"&password=" + securityNumber,
+						null);
+				HttpGet getMethod = new HttpGet(uri);
+				String body = m_ClientHttp.execute(getMethod,new BasicResponseHandler());
+				listeMeetUpKey = JSONParser.parseSingleArrayString(body, "demandes");
+			}
+			catch(Exception e){Log.i("GetMyMeetUpInvitationsError",e.getMessage());}
+			
+			return listeMeetUpKey;
+		}
+
+		@Override
+		protected void onPostExecute(ArrayList<String> keys){
+			
+			if(fragmentToUpdate.getMesInvitations() == null)
+				fragmentToUpdate.setMesInvitations(new ArrayList<MeetUp>());
+			
+			fragmentToUpdate.set_invitationAdapter(fragmentToUpdate.new LigneInvitationAdapter());
+			fragmentToUpdate.getListeMesInvitations().setAdapter(fragmentToUpdate.get_invitationAdapter());
+			
+			for(String key:keys){
+				network.AsyncGetMeetUpInformations asyncGetInformations = new network.AsyncGetMeetUpInformations();
+				asyncGetInformations.setUsername(fragmentToUpdate.getUsager().get_googleId());
+				asyncGetInformations.setSecurityNumber(fragmentToUpdate.getUsager().get_securityNumber());
+				asyncGetInformations.setMeetUpKey(key);
+				asyncGetInformations.setFragmentToUpdate(fragmentToUpdate);
+				asyncGetInformations.setAccepted(false);
+				asyncGetInformations.execute((Void)null);
+			}
+		}
+		
+		public String getUsername() {
+			return username;
+		}
+
+		public void setUsername(String username) {
+			this.username = username;
+		}
+
+		public String getSecurityNumber() {
+			return securityNumber;
+		}
+
+		public void setSecurityNumber(String securityNumber) {
+			this.securityNumber = securityNumber;
+		}
+
+		public FragmentMeetUp getFragmentToUpdate() {
+			return fragmentToUpdate;
+		}
+
+		public void setFragmentToUpdate(FragmentMeetUp fragmentToUpdate) {
+			this.fragmentToUpdate = fragmentToUpdate;
+		}
+		
+	}
+	
+	public static class AsyncGetMeetUpInformations extends AsyncTask<Void, Void, MeetUp>{
+		
+		private String username;
+		private String securityNumber;
+		private String meetUpKey;
+		private Boolean getAccepted;
+		
+		private FragmentMeetUp fragmentToUpdate;
+		
+		private HttpClient m_ClientHttp = new DefaultHttpClient();
+		
+		@Override
+		protected MeetUp doInBackground(Void... unused) {
+			MeetUp meetup = null;
+			
+			try{
+				URI uri = new URI("http",WEB_SERVICE_URL,"/info-meetUp",
+						"meetUp=" + meetUpKey, null);
+				Log.i("GetMeetUpInformation", uri.toString());
+				HttpGet getMethod = new HttpGet(uri);
+				String body = m_ClientHttp.execute(getMethod,new BasicResponseHandler());
+				meetup = JSONParser.parseMeetUp(body);
+			}
+			catch(Exception e){Log.i("GetMeetUpInformationError",e.getMessage());}
+			
+			return meetup;
+		}
+		
+		@Override
+		protected void onPostExecute(MeetUp meetup){
+			
+			if(fragmentToUpdate.getMesInvitations() == null)
+				fragmentToUpdate.setMesInvitations(new ArrayList<MeetUp>());
+			
+			fragmentToUpdate.getMesInvitations().add(new MeetUp(meetup));
+			int messageId;
+			if(getAccepted)
+				messageId = R.string.participe;
+			else
+				messageId = R.string.choisirParticipation;
+			
+			fragmentToUpdate.getRowInvitationModels().add(new RowInvitationModel(
+					meetup.get_nom(), 
+					fragmentToUpdate.getResources().getString(messageId),
+					meetup.get_lieu(),
+					meetup.get_dateMin(),
+					meetup.get_heureMin()+"h",
+					meetup.get_dateMax(),
+					meetup.get_heureMax()+"h"));
+			
+			fragmentToUpdate.get_invitationAdapter().notifyDataSetChanged();
+		}
+		
+		public String getUsername() {
+			return username;
+		}
+		public void setUsername(String username) {
+			this.username = username;
+		}
+		public String getSecurityNumber() {
+			return securityNumber;
+		}
+		public void setSecurityNumber(String securityNumber) {
+			this.securityNumber = securityNumber;
+		}
+		public String getMeetUpKey() {
+			return meetUpKey;
+		}
+		public void setMeetUpKey(String meetUpKey) {
+			this.meetUpKey = meetUpKey;
+		}
+
+		public FragmentMeetUp getFragmentToUpdate() {
+			return fragmentToUpdate;
+		}
+
+		public void setFragmentToUpdate(FragmentMeetUp fragmentToUpdate) {
+			this.fragmentToUpdate = fragmentToUpdate;
+		}
+
+		public Boolean getAccepted() {
+			return getAccepted;
+		}
+
+		public void setAccepted(Boolean getAccepted) {
+			this.getAccepted = getAccepted;
+		}
+		
+	}
+	
+	public static class AsyncAcceptMeetUpParticipation extends AsyncTask<Void, Void, String>{
+		private String username;
+		private String securityNumber;
+		private String meetUpKey;
+		
+		private HttpClient m_ClientHttp = new DefaultHttpClient();
+		
+		@Override
+		protected String doInBackground(Void... unused) {
+			String message = "";
+			
+			try{
+				URI uri = new URI("http",WEB_SERVICE_URL,"/accept-meetUp",
+						"moi=" + username +
+						"&password=" + securityNumber +
+						"&meetUp=" + meetUpKey, null);
+				
+				HttpGet getMethod = new HttpGet(uri);
+				String body = m_ClientHttp.execute(getMethod,new BasicResponseHandler());
+				message = JSONParser.parseSingleString(body, "message");
+			}
+			catch(Exception e){Log.i("GetAcceptMeetUpParticipationError",e.getMessage());}
+			
+			return message;
+		}
+
+		public String getUsername() {
+			return username;
+		}
+
+		public void setUsername(String username) {
+			this.username = username;
+		}
+
+		public String getSecurityNumber() {
+			return securityNumber;
+		}
+
+		public void setSecurityNumber(String securityNumber) {
+			this.securityNumber = securityNumber;
+		}
+
+		public String getMeetUpKey() {
+			return meetUpKey;
+		}
+
+		public void setMeetUpKey(String meetUpKey) {
+			this.meetUpKey = meetUpKey;
+		}
+	}
+	
+	public static class AsyncDeclineMeetUpParticipation extends AsyncTask<Void, Void, String>{
+		private String username;
+		private String securityNumber;
+		private String meetUpId;
+		
+		private HttpClient m_ClientHttp = new DefaultHttpClient();
+		
+		@Override
+		protected String doInBackground(Void... unused) {
+			String message = "";
+			
+			try{
+				URI uri = new URI("http",WEB_SERVICE_URL,"/refuse-meetUp",
+						"moi=" + username +
+						"&password=" + securityNumber +
+						"&meetUp=" + meetUpId, null);
+				Log.i("DeclineMeetUpParticipation",uri.toString());
+				HttpGet getMethod = new HttpGet(uri);
+				String body = m_ClientHttp.execute(getMethod,new BasicResponseHandler());
+				message = JSONParser.parseSingleString(body, "message");
+			}
+			catch(Exception e){Log.i("GetDeclineMeetUpParticipationError",e.getMessage());}
+			
+			return message;
+		}
+		
+		public String getUsername() {
+			return username;
+		}
+		public void setUsername(String username) {
+			this.username = username;
+		}
+		public String getSecurityNumber() {
+			return securityNumber;
+		}
+		public void setSecurityNumber(String securityNumber) {
+			this.securityNumber = securityNumber;
+		}
+		public String getMeetUpId() {
+			return meetUpId;
+		}
+		public void setMeetUpId(String meetUpId) {
+			this.meetUpId = meetUpId;
+		}
+	}
+	
+	public static class AsyncGetMeetUpAccepted extends AsyncTask<Void, Void, ArrayList<String>>{
+		private String username;
+		private FragmentMeetUp fragmentToUpdate;
+		private HttpClient m_ClientHttp = new DefaultHttpClient();
+		
+		@Override
+		protected ArrayList<String> doInBackground(Void... unused) {
+			ArrayList<String> message = null;
+			
+			try{
+				URI uri = new URI("http",WEB_SERVICE_URL,"/get-user-info",
+						"username=" + username, null);
+				
+				HttpGet getMethod = new HttpGet(uri);
+				String body = m_ClientHttp.execute(getMethod,new BasicResponseHandler());
+				message = JSONParser.parseSingleArrayString(body, "listMeetUp");
+			}
+			catch(Exception e){Log.i("GetAcceptMeetUpParticipationError",e.getMessage());}
+			
+			return message;
+		}
+		
+		@Override
+		protected void onPostExecute(ArrayList<String> keys){
+			if(fragmentToUpdate.getMesInvitations() == null)
+				fragmentToUpdate.setMesInvitations(new ArrayList<MeetUp>());
+			
+			fragmentToUpdate.set_invitationAdapter(fragmentToUpdate.new LigneInvitationAdapter());
+			fragmentToUpdate.getListeMesInvitations().setAdapter(fragmentToUpdate.get_invitationAdapter());
+			
+			for(String key:keys){
+				network.AsyncGetMeetUpInformations asyncGetInformations = new network.AsyncGetMeetUpInformations();
+				asyncGetInformations.setUsername(fragmentToUpdate.getUsager().get_googleId());
+				asyncGetInformations.setSecurityNumber(fragmentToUpdate.getUsager().get_securityNumber());
+				asyncGetInformations.setMeetUpKey(key);
+				asyncGetInformations.setFragmentToUpdate(fragmentToUpdate);
+				asyncGetInformations.setAccepted(true);
+				asyncGetInformations.execute((Void)null);
+			}
+		}
+
+		public String getUsername() {
+			return username;
+		}
+
+		public void setUsername(String username) {
+			this.username = username;
+		}
+
+		public FragmentMeetUp getFragmentToUpdate() {
+			return fragmentToUpdate;
+		}
+
+		public void setFragmentToUpdate(FragmentMeetUp fragmentToUpdate) {
+			this.fragmentToUpdate = fragmentToUpdate;
 		}
 	}
 	
@@ -403,9 +937,9 @@ public class network {
 				e.printStackTrace();
 			}
 			
-			// Trouver la personne ajoutée
+			// Trouver la personne ajoutï¿½e
 			
-			// Envoyer la demande à la personne trouvée
+			// Envoyer la demande ï¿½ la personne trouvï¿½e
 			
 			return json;
 		}

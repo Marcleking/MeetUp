@@ -25,15 +25,19 @@ public class JSONParser {
 	private static final String MSG_SUCCESS = "success";
 	private static final String MSG_ERROR = "error";
 	
-	public static ArrayList<String> parseFriendList(String p_body) throws JSONException{
-		ArrayList<String> listeAmis = null;
+	public static ArrayList<Ami> parseFriendList(String p_body) throws JSONException{
+		ArrayList<Ami> listeAmis = null;
 		JSONObject json = new JSONObject(p_body);
 		
 		if(json.getString(MSG_RESULT).equals(MSG_SUCCESS)){
-			listeAmis = new ArrayList<String>();
+			listeAmis = new ArrayList<Ami>();
 			JSONArray tab = json.getJSONArray("amis");
 			for (int i = 0; i < tab.length(); i++) {
-				listeAmis.add(tab.get(i).toString());				
+				JSONObject ami = tab.getJSONObject(i);
+				listeAmis.add(new Ami(
+						ami.getString("username"),
+						ami.getString("nom"),
+						ami.getString("prenom")));				
 			}
 		}
 		else
@@ -62,6 +66,7 @@ public class JSONParser {
 					listeMeetUp.get(i).set_heureMax(meetUp.getInt("heureMax"));
 					listeMeetUp.get(i).set_dateMin(meetUp.getString("dateMin"));
 					listeMeetUp.get(i).set_dateMax(meetUp.getString("dateMax"));
+					listeMeetUp.get(i).set_id(meetUp.getString("key"));
 					ArrayList<Ami> amis = new ArrayList<Ami>();
 					JSONArray participants = meetUp.getJSONArray("participant");
 					if(participants != null && participants.length() > 0){
@@ -81,6 +86,51 @@ public class JSONParser {
 		
 		
 		return listeMeetUp;
+	}
+	
+	public static MeetUp parseMeetUp(String p_body) throws JSONException{
+		MeetUp meetup = null;
+		
+		JSONObject json = new JSONObject(p_body);
+		if(json.getString(MSG_RESULT).equals(MSG_SUCCESS)){
+			meetup = new MeetUp();
+			JSONObject info = json.getJSONObject("info");
+			meetup.set_nom(info.getString("nom"));
+			meetup.set_lieu(info.getString("lieu"));
+			meetup.set_duree(info.getInt("duree"));
+			meetup.set_heureMin(info.getInt("heureMin"));
+			meetup.set_heureMax(info.getInt("heureMax"));
+			meetup.set_dateMin(info.getString("dateMin"));
+			meetup.set_dateMax(info.getString("dateMax"));
+			meetup.set_id(info.getString("key"));
+			ArrayList<Ami> amis = new ArrayList<Ami>();
+			JSONArray participants = info.getJSONArray("listeParticipant");
+			if(participants != null && participants.length() > 0){
+				for(int i = 0; i < participants.length(); i++){
+					JSONObject participant = participants.getJSONObject(i);
+					amis.add(new Ami());
+					amis.get(i).set_id(participant.getString("username"));
+					amis.get(i).set_nom(participant.getString("nom"));
+					amis.get(i).set_prenom(participant.getString("prenom"));
+				}
+			}
+		}
+		
+		return meetup;
+	}
+	
+	public static ArrayList<String> parseSingleArrayString(String p_body, String nodeName) throws JSONException{
+		ArrayList<String> listeResultat = null;
+		JSONObject json = new JSONObject(p_body);
+		
+		if(json.getString(MSG_RESULT).equals(MSG_SUCCESS)){
+			listeResultat = new ArrayList<String>();
+			JSONArray tab = json.getJSONArray(nodeName);
+			for(int i = 0; i < tab.length(); i++){
+				listeResultat.add(tab.getString(i));
+			}
+		}
+		return listeResultat;
 	}
 	
 	public static String parseSingleString(String p_body, String nodeName) throws JSONException{
