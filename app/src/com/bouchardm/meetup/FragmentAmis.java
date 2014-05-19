@@ -90,10 +90,10 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 		
 		PersonneDataSource dataSource = new PersonneDataSource(getActivity());
 		dataSource.open();
-		usager = dataSource.getPersonne(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient).getId());
+		usager = dataSource.getPersonne(Plus.AccountApi.getAccountName(mGoogleApiClient));
 		dataSource.close();
 		
-		new AsyncGetAmi().execute("http://www.appmeetup.appspot.com/get-friends?username=" + usager.get_googleId());
+		new AsyncGetAmi().execute("http://www.appmeetup.appspot.com/get-friends?username=" + usager.get_googleId()+"&withInfo=1");
 		
 		ExpAdapter = new ExpandListAdapter(rootView.getContext(), ExpListItems);
         ExpandList.setAdapter(ExpAdapter);
@@ -176,6 +176,9 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 			switch(item.getItemId())
 			{
 				case R.id.menu_supprimerAmi:
+					// on supprime l'ami sur le web service
+					new AsyncHttpGet().execute("http://www.appmeetup.appspot.com/delete-friend?moi=" + usager.get_googleId() + "&password=" + usager.get_securityNumber() + "&supprime="+ExpListItems.get(group).getItem(child).getTag());
+					
 					//Supprimer un ami
 					ExpListItems.get(group).getItems().remove(child);
 					ExpAdapter = new ExpandListAdapter(rootView.getContext(), ExpListItems);
@@ -195,7 +198,7 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 					// Quand un utilisateur accepte un ami il est automatiquement placer dans Mes amis
 					
 					// on accepter l'ami sur le web service
-					new AsyncHttpGet().execute("http://www.appmeetup.appspot.com/add-friend?moi=" + usager.get_googleId() + "&password=" + usager.get_securityNumber() + "&ajoute="+ExpListItems.get(group).getItem(child).getName());
+					new AsyncHttpGet().execute("http://www.appmeetup.appspot.com/add-friend?moi=" + usager.get_googleId() + "&password=" + usager.get_securityNumber() + "&ajoute="+ExpListItems.get(group).getItem(child).getTag());
 					
 					// on met à jour la liste
 					ListeAmiModel amiTempo = FragmentAmis.this.ExpListItems.get(group).getItem(child);
@@ -225,6 +228,10 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 					
 					return true;
 				case R.id.menu_refuser:
+					
+					// on supprime l'ami sur le web service
+					new AsyncHttpGet().execute("http://www.appmeetup.appspot.com/delete-friend?moi=" + usager.get_googleId() + "&password=" + usager.get_securityNumber() + "&supprime="+ExpListItems.get(group).getItem(child).getTag());
+					 
 					//Supprimer un n'ami
 					ExpListItems.get(group).getItems().remove(child);
 					ExpAdapter = new ExpandListAdapter(rootView.getContext(), ExpListItems);
@@ -808,8 +815,10 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 					
 					ListeGroupeModel groupeDemande = new ListeGroupeModel();
 					groupeDemande.setName("Demandes d'ami");
-					for (int i = 0; i < demandeAmi.length(); i++) {
-						ListeAmiModel unAmi = new ListeAmiModel(demandeAmi.getString(i), null);
+					for (int i = 0; i < demandeAmi.length(); i++){
+						JSONObject infoAmi = demandeAmi.getJSONObject(i);
+						
+						ListeAmiModel unAmi = new ListeAmiModel(infoAmi.getString("prenom") + " " + infoAmi.getString("nom"), infoAmi.getString("username"));
 				        listeAmi.add(unAmi);
 					}
 					groupeDemande.setItems(listeAmi);
@@ -819,7 +828,10 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
 					ListeGroupeModel amiGroupe = new ListeGroupeModel();
 					amiGroupe.setName("Mes amis");
 					for (int i = 0; i < ami.length(); i++) {
-						ListeAmiModel unAmi = new ListeAmiModel(ami.getString(i), null);
+						
+						JSONObject infoAmi = ami.getJSONObject(i);
+						
+						ListeAmiModel unAmi = new ListeAmiModel(infoAmi.getString("prenom") + " " + infoAmi.getString("nom"), infoAmi.getString("username"));
 				        listeAmi.add(unAmi);
 					}
 					amiGroupe.setItems(listeAmi);

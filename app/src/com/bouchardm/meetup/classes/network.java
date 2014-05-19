@@ -22,7 +22,16 @@ public class network {
 	public static class AsyncAddUser extends AsyncTask<Void,Void, String>{
 		private String p_sha1;
 		private Person p_user;
+		private String email;
 		
+		public String getEmail() {
+			return email;
+		}
+
+		public void setEmail(String email) {
+			this.email = email;
+		}
+
 		public String message;
 		
 		private HttpClient m_ClientHttp = new DefaultHttpClient();
@@ -55,7 +64,7 @@ public class network {
 			
 			try{
 				URI uri = new URI("HTTP",WEB_SERVICE_URL, "/add-user", 
-						"username=" + p_user.getId() + 
+						"username=" + email + 
 						"&password=" + p_sha1 +
 						"&nom=" + p_user.getName().getFamilyName() + 
 						"&prenom=" + p_user.getName().getGivenName() , null );

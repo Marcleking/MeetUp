@@ -167,8 +167,11 @@ class GetUsers(webapp.RequestHandler):
                 for p in result:
                     
                     #persInJson = to_dict(p.username)
-                    listePers.append(p.username)
-            
+                    listePers.append({
+                        'username' : p.username,
+                        
+                    })
+                
                 response = {
                     MSG_RESULT : MSG_SUCCESS,
                     'personnes' : listePers

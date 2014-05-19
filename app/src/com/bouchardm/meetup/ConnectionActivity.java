@@ -41,6 +41,7 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.PlusClient;
@@ -170,13 +171,15 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		mSignInButton = (SignInButton) findViewById(R.id.sign_in_button);
 		mSignInButton.setOnClickListener(this);
 
-		if (savedInstanceState != null) {
-			mSignInProgress = savedInstanceState.getInt(SAVED_PROGRESS,
-					STATE_DEFAULT);
-			
-			activeFragment = getSupportFragmentManager().findFragmentByTag("fragment");
-			getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, activeFragment,"fragment").commit();
-		}
+//		if (savedInstanceState != null) {
+//			
+//			FragmentHoraire horaireFragment = new FragmentHoraire();
+//			activeFragment = horaireFragment;
+//			FragmentManager fragmentManager;
+//			((FragmentHoraire) horaireFragment).setmGoogleApiClient(mGoogleApiClient);
+//			fragmentManager = getSupportFragmentManager();
+//			fragmentManager.beginTransaction().replace(R.id.content_frame, activeFragment).commit();
+//		}
 	}
 
 	private GoogleApiClient buildGoogleApiClient() {
@@ -232,12 +235,12 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		// Amis
 		case 3:
 			//this.startActivity(new Intent(this, Amis.class));
-			
 			Fragment friendFragment = new FragmentAmis();
 			activeFragment = friendFragment;
 			((FragmentAmis) friendFragment).setmGoogleApiClient(mGoogleApiClient);
 			fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment,"fragment").commit();
+			break;
 		// Paramètre
 		 case 4:
 		 	friendFragment = new FragmentParametre();
@@ -255,7 +258,6 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 			mGoogleApiClient.connect();
 			break;
 		}
-		
 		
 		mDrawer.closeDrawer(mLeftDrawerList);
 	}
@@ -290,30 +292,32 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		}
 	}
 
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putInt(SAVED_PROGRESS, mSignInProgress);
-		Log.i(TAG,"onSave");
-		if(activeFragment != null){
-			Log.i(TAG,"onSaveHasFragment");
-			//activeFragment.onSaveInstanceState(outState);
-			getSupportFragmentManager().putFragment(outState, "fragment", activeFragment);
-		}
-	}
+//	@Override
+//	protected void onSaveInstanceState(Bundle outState) {
+//		super.onSaveInstanceState(outState);
+//		outState.putInt(SAVED_PROGRESS, mSignInProgress);
+//		Log.i(TAG,"onSave");
+//		if(activeFragment != null){
+//			Log.i(TAG,"onSaveHasFragment");
+//			//activeFragment.onSaveInstanceState(outState);
+//			getSupportFragmentManager().putFragment(outState, "fragment", activeFragment);
+//		}
+//	}
 	
-	@Override
-	protected void onRestoreInstanceState(Bundle inState){
-		super.onRestoreInstanceState(inState);
-		Log.i(TAG,"onRestore");
-		
-		Log.i(TAG,"onRestoreHasFragment");
-		activeFragment = getSupportFragmentManager().getFragment(inState, "fragment");
-		FragmentManager fragmentManager;
-		fragmentManager = getSupportFragmentManager();
-		fragmentManager.beginTransaction().replace(R.id.content_frame, activeFragment).commit();
-		
-	}
+//	@Override
+//	protected void onRestoreInstanceState(Bundle inState){
+//		super.onRestoreInstanceState(inState);
+//		Log.i(TAG,"onRestore");
+//		
+//		Log.i(TAG,"onRestoreHasFragment");
+//		FragmentHoraire horaireFragment = new FragmentHoraire();
+//		activeFragment = horaireFragment;
+//		FragmentManager fragmentManager;
+//		((FragmentHoraire) horaireFragment).setmGoogleApiClient(mGoogleApiClient);
+//		fragmentManager = getSupportFragmentManager();
+//		fragmentManager.beginTransaction().replace(R.id.content_frame, activeFragment).commit();
+//		
+//	}
 	
 	private void initMainActivity(){
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -323,7 +327,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		mDrawer.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 		initLeftMenu();
 		
-		new AsyncHttpGetListAmi().execute(user.getId());
+		new AsyncHttpGetListAmi().execute(usager.get_googleId());
 		
 		
 		Fragment horaireFragment = new FragmentAccueil();
@@ -381,12 +385,17 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	}
 	
 	private void initRightMenu(String[] listAmi) {
-		this.mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-		this.mRightDrawerList = (ListView) findViewById(R.id.right_drawer);
-		
-		this.mRightDrawerList.setAdapter(new ArrayAdapter<String>(this,
+		if (listAmi.length > 0) {
+			this.mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+			this.mRightDrawerList = (ListView) findViewById(R.id.right_drawer);
+			
+			this.mRightDrawerList.setAdapter(new ArrayAdapter<String>(this,
 				android.R.layout.simple_list_item_1, listAmi));
-		this.mRightDrawerList.setOnItemClickListener(new DrawerItemClickListenerRight());
+			
+			this.mRightDrawerList.setOnItemClickListener(new DrawerItemClickListenerRight());
+		}
+		
+		
 	}
 	
 	/**
@@ -423,14 +432,16 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		Log.i(TAG, "onConnected");
 		user = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
 		
+		String email = Plus.AccountApi.getAccountName(mGoogleApiClient);
+		
 		// Vérification de l'existance de l'usager dans la BD locale
 		PersonneDataSource dataSource = new PersonneDataSource(this);
 		dataSource.open();
 		
-		if(!dataSource.userExisting(user.getId())){
+		if(!dataSource.userExisting(email)){
 			Log.i(TAG,"Ajout de l'utilisateur");
 			
-			Personne nouvelUsager = new Personne(user.getId());
+			Personne nouvelUsager = new Personne(email);
 			
 			// Ajout de l'usager dans la BD locale
 			int newId = dataSource.insert(nouvelUsager);
@@ -440,10 +451,13 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 			// Ajout de l'usager dans le WebService
 			network.AsyncAddUser ajoutUsager = new network.AsyncAddUser();
 			ajoutUsager.setP_user(user);
+			ajoutUsager.setEmail(email);
 			ajoutUsager.setP_sha1(nouvelUsager.get_securityNumber());
 			ajoutUsager.execute((Void)null);
 		}
-		usager = dataSource.getPersonne(user.getId());
+		
+		
+		usager = dataSource.getPersonne(email);
 		dataSource.close();
 		
 		// this.startActivity(new Intent(this, MainActivity.class));
@@ -643,7 +657,6 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	    
 	    @Override
 	    protected void onPostExecute(ArrayList<String> result) {
-	    	
 	    	String[] listeAmi = new String[result.size()];
 	    	String[] usernameAmi = new String[result.size()];
 	    	
@@ -651,8 +664,6 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	    		try {
 					JSONObject reponse = new JSONObject(result.get(i));
 					JSONArray listeAmiReponse = reponse.getJSONArray("amis");
-					
-					
 					
 					for (int j = 0; j < listeAmiReponse.length(); j++) {
 						JSONObject unAmi = listeAmiReponse.getJSONObject(j);

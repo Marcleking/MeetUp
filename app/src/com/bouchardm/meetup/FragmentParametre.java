@@ -99,7 +99,7 @@ public class FragmentParametre extends Fragment implements View.OnClickListener,
 
 		PersonneDataSource dataSource = new PersonneDataSource(getActivity());
 		dataSource.open();
-		usager = dataSource.getPersonne(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient).getId());
+		usager = dataSource.getPersonne(Plus.AccountApi.getAccountName(mGoogleApiClient));
 		dataSource.close();
 		
 		btnHeureMin = (Button) rootView.findViewById(R.id.btnHeureMin);
@@ -112,6 +112,11 @@ public class FragmentParametre extends Fragment implements View.OnClickListener,
         
 		btnReadNotification = (Button) rootView.findViewById(R.id.btnReadNotification);
 		btnReadNotification.setOnClickListener(this);
+		
+		
+		TextView idUser = (TextView) rootView.findViewById(R.id.identifiantUtilisateur);
+		idUser.setText("Identifiant : "+usager.get_googleId().toString());
+		
 		
 		this.notifMgr = (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
 		

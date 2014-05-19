@@ -69,7 +69,7 @@ public class FragmentAccueil extends ListFragment implements View.OnClickListene
 		
 		PersonneDataSource dataSource = new PersonneDataSource(getActivity());
 		dataSource.open();
-		usager = dataSource.getPersonne(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient).getId());
+		usager = dataSource.getPersonne(Plus.AccountApi.getAccountName(mGoogleApiClient));
 		dataSource.close();
 		
 		Bundle bundle = this.getArguments();

@@ -96,7 +96,7 @@ public class FragmentHoraire extends ListFragment implements View.OnClickListene
 		
 		PersonneDataSource dataSource = new PersonneDataSource(getActivity());
 		dataSource.open();
-		usager = dataSource.getPersonne(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient).getId());
+		usager = dataSource.getPersonne(Plus.AccountApi.getAccountName(mGoogleApiClient));
 		dataSource.close();
 		
 		m_adapter = new LigneAdapter();
@@ -287,7 +287,7 @@ public class FragmentHoraire extends ListFragment implements View.OnClickListene
 				Uri uri = CalendarContract.Calendars.CONTENT_URI;   
 				String selection = "((" + CalendarContract.Calendars.ACCOUNT_NAME + " = ?) AND ("
 				                        + CalendarContract.Calendars.ACCOUNT_TYPE + " = ?))";
-				String[] selectionArgs = new String[] {"marcantoine.bouchardm@gmail.com", "com.google"}; 
+				String[] selectionArgs = new String[] {usager.get_googleId(), "com.google"}; 
 				// Submit the query and get a Cursor object back. 
 				cur = cr.query(uri, EVENT_PROJECTION, selection, selectionArgs, null);
 				
