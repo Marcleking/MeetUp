@@ -9,12 +9,6 @@
         android:layout_height="wrap_content"
         android:text="Ajout groupe" />
     
-    <Button 
-        android:id="@+id/btnAjoutAmis"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Ajout amis" />
-    
     <ExpandableListView
                 android:id="@+id/ExpList"
                 android:layout_height="match_parent"

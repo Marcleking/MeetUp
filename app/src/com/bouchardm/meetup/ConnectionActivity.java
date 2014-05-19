@@ -210,6 +210,13 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	private void selectItem(int position){
 		FragmentManager fragmentManager;
 		switch(position){
+		case 0:
+			Fragment accueilFragment = new FragmentAccueil();
+			activeFragment = accueilFragment;
+			((FragmentAccueil) accueilFragment).setmGoogleApiClient(mGoogleApiClient);
+			fragmentManager = getSupportFragmentManager();
+			fragmentManager.beginTransaction().replace(R.id.content_frame,accueilFragment,"fragment").commit();
+			break;
 		// Horaire
 		case 1:
 			Fragment horaireFragment = new FragmentHoraire();
@@ -377,14 +384,13 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	}
 	
 	private void initRightMenu(String[] listAmi) {
-
-		if(listAmi != null && listAmi.length > 0){
-			this.mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-			this.mRightDrawerList = (ListView) findViewById(R.id.right_drawer);
-			
-			this.mRightDrawerList.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, listAmi));
-			this.mRightDrawerList.setOnItemClickListener(new DrawerItemClickListenerRight());
-		}
+//		if(listAmi.length > 0){
+//			this.mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//			this.mRightDrawerList = (ListView) findViewById(R.id.right_drawer);
+//			
+//			this.mRightDrawerList.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, listAmi));
+//			this.mRightDrawerList.setOnItemClickListener(new DrawerItemClickListenerRight());
+//		}
 	}
 	
 	/**
