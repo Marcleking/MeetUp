@@ -6,48 +6,63 @@ Le service est disponible ici : http://appmeetup.appspot.com/
 ##/add-user
 Ajoute un nouvel utilisateur dans la BD
 **Paramètre**
-* username
-* password
-* nom
-* prenom
+* username (nom d'utilisateur)
+* password (mot de passe de l'utilisateur)
+* nom      (nom de l'utilisateur)
+* prenom   (prénom de l'utilisateur)
 
 **Retourne**
-* key
+* key ou un message qui indique que l'utilisateur existe déjà
+
+**Exemple**
+http://appmeetup.appspot.com/add-user?username=testest&password=motDePasse&nom=userTest&prenom=prenomTest
+
+**Note**
+Si un champs n'est pas indiquer il sera ajouter dans le web service comme étant vide
 
 ##/ask-friend
-Fait un demande à un utilisateur
+Fait une demande à un utilisateur
 **Paramètre**
-* moi
-* password
-* demande
-
+* moi      (username de la personne qui demande en amitier un autre utilisateur)
+* password (mot de passe de la personne qui demande en amitié un autre utilisateur)
+* demande  (username de la personne demander en amitier)
 **Retourne**
 * message
+
+**Exemple**
+http://appmeetup.appspot.com/ask-friend?moi=testesdfst&password=motDePasse&demande=marcantoine.bouchardm@gmail.com
 
 ##/add-friend
 Ajoute un utilisateur comme ami (il faut que l'utilisateur soit préalablement dans les demandes d'amitié)
 **Paramètre**
-* moi
-* password
-* ajoute
+* moi      (username qui ajoute un utilisateur)
+* password (mot de passe de cet utilisateur)
+* ajoute   (username de la personne à ajouter)
 
 **Retourne**
 * message
 
+**Exemple**
+http://appmeetup.appspot.com/add-friend?moi=marcantoine.bouchardm@gmail.com&password=b09397552e74f0888a9f368dc04f37ddd3565238&ajoute=testesdfst
+
 ##/list-meetUp
 Liste toute les MeetUp d'un utilisateur
 **Paramètre**
-* moi
-* password
+* moi      (username de l'utilisateur)
+* password (mot de passe de cet utilisateur)
+* withInfo (facultatif : permet de retourner plus d'info à propos des utilisateurs qui participe au meetUp)
 
 **Retourne**
 * listMeetUp
 
+**Exemple**
+http://appmeetup.appspot.com/list-meetUp?moi=marcantoine.bouchardm@gmail.com&password=b09397552e74f0888a9f368dc04f37ddd3565238&withInfo=1
+
 ##/add-meetUp
 Anjoute un nouveau MeetUp
 **Paramètre**
-* moi
-* password
+* moi      (username de la personne qui rajoute un meetUp)
+* password (mot de passe de cet personne)
 * nom
 * lieu
 * duree
