@@ -241,7 +241,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 			fragmentManager = getSupportFragmentManager();
 			fragmentManager.beginTransaction().replace(R.id.content_frame, friendFragment,"fragment").commit();
 			break;
-		// Paramètre
+		// Paramï¿½tre
 		 case 4:
 		 	friendFragment = new FragmentParametre();
 		 	((FragmentParametre) friendFragment).setmGoogleApiClient(mGoogleApiClient);
@@ -429,7 +429,7 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		
 		String email = Plus.AccountApi.getAccountName(mGoogleApiClient);
 		
-		// Vérification de l'existance de l'usager dans la BD locale
+		// Vï¿½rification de l'existance de l'usager dans la BD locale
 
 		PersonneDataSource dataSource = new PersonneDataSource(this);
 		dataSource.open();
@@ -653,17 +653,18 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	    
 	    @Override
 	    protected void onPostExecute(ArrayList<String> result) {
-	    	String[] listeAmi = new String[result.size()];
-	    	String[] usernameAmi = new String[result.size()];
-	    	
+	    	String[] listeAmi = null;
+	    	String[] usernameAmi = null;
 	    	for (int i = 0; i < result.size(); i++) {
 	    		try {
 					JSONObject reponse = new JSONObject(result.get(i));
 					JSONArray listeAmiReponse = reponse.getJSONArray("amis");
 					
+					listeAmi = new String[listeAmiReponse.length()];
+					usernameAmi = new String[listeAmiReponse.length()];
+					
 					for (int j = 0; j < listeAmiReponse.length(); j++) {
 						JSONObject unAmi = listeAmiReponse.getJSONObject(j);
-						
 						listeAmi[i] = unAmi.getString("prenom") +" "+ unAmi.getString("nom");
 						usernameAmi[i] = unAmi.getString("username");
 					}
