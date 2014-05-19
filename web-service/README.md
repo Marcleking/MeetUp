@@ -63,47 +63,68 @@ Anjoute un nouveau MeetUp
 **Paramètre**
 * moi      (username de la personne qui rajoute un meetUp)
 * password (mot de passe de cet personne)
-* nom
-* lieu
-* duree
-* heureMin
-* heureMax
-* dateMin (2011-12-28)
-* dateMax (2011-12-31)
+* nom      (nom du meetUp)
+* lieu     (lieu du meetUp)
+* duree    (int : duree du meetUp)
+* heureMin (int : heure minimum du meetUp)
+* heureMax (int : heure maximum du meetUp)
+* dateMin  (yyyy-mm-dd : date minimum du meetUp)
+* dateMax  (yyyy-mm-dd : date maximum du meetUp)
 
 **Retourne**
 * key
 
+**Exemple**
+http://appmeetup.appspot.com/add-meetUp?moi=testesdfst&password=motDePasse&nom=rencontre&lieu=ici&duree=60&dateMin=2014-05-18&dateMax=2014-05-23&heureMin=10&heureMax=20
+
 ##/invite-friend
 Invite un utilisateur à être ami
 **Paramètre**
-* moi
-* password
-* ami
-* meetUp (key)
+* moi      (username de l'utilisateur)
+* password (mot de passe de cet utilisateur)
+* ami      (username de l'ami à ajouter)
+* meetUp (key : key du meetUp)
 
 **Retourne**
 * message
+
+**Exemple**
+http://appmeetup.appspot.com/invite-friend?moi=testesdfst&password=motDePasse&ami=marcantoine.bouchardm@gmail.com&meetUp=agtzfmFwcG1lZXR1cHIrCxILVXRpbGlzYXRldXIYgICAgJ3ujwoMCxIGTWVldFVwGICAgICAgIAKDA
+
+**Note**
+L'utilisateur qui invite un ami doit être le créateur du meetUp.
 
 ##/accept-meetUp
 Accepte un demande de participation à un meetUp
 **Paramètre**
-* moi
-* password
-* meetUp (key)
+* moi      (username de l'utilisateur)
+* password (mot de passe de cet utilisateur)
+* meetUp (key : key du meetUp à accepter)
 
 **Retourne**
 * message
+
+**Exemple**
+http://appmeetup.appspot.com/accept-meetUp?moi=marcantoine.bouchardm@gmail.com&password=b09397552e74f0888a9f368dc04f37ddd3565238&meetUp=agtzfmFwcG1lZXR1cHIrCxILVXRpbGlzYXRldXIYgICAgJ3ujwoMCxIGTWVldFVwGICAgICAgIAKDA
+
+**Note**
+L'utilisateur qui accepte un meetUp doit être inviter à ce meetUp
 
 ##/delete-meetUp
 Supprime un MeetUp (fonctionnel uniquement pour le créateur du MeetUp)
 **Paramètre**
-* moi
-* password
-* supprime
+* moi      (username de l'utilisateur)
+* password (mot de passe de cet utilisateur)
+* supprime (key: key du meetUp à supprimer)
 
 **Retourne**
 * message
+
+**Exemple** 
+http://appmeetup.appspot.com/delete-meetUp?moi=testesdfst&password=motDePasse&supprime=agtzfmFwcG1lZXR1cHIrCxILVXRpbGlzYXRldXIYgICAgJ3ujwoMCxIGTWVldFVwGICAgICAgIAKDA
+
+**Note**
+L'utilisateur qui supprime un meetUp doit être inviter à ce meetUp
 
 ##/delete-user-meetUp
 Pour supprimer sa participation à un meetUp
@@ -132,6 +153,9 @@ Lit les notifications d'un utilisateur (Les notifications sont supprimer après)
 
 **Retourne**
 * notif (liste des notifications)
+
+**Exemple**
+http://appmeetup.appspot.com/read-notif?moi=marcantoine.bouchardm@gmail.com&password=b09397552e74f0888a9f368dc04f37ddd3565238
 
 ##/delete-friend
 Supprime un ami
