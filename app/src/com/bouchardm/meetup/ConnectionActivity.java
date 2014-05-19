@@ -31,6 +31,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.bouchardm.meetup.classes.Personne;
 import com.bouchardm.meetup.classes.network;
 import com.bouchardm.meetup.service.NotificationService;
@@ -71,7 +73,9 @@ import com.google.api.services.calendar.model.*;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -170,17 +174,9 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 		
 		mSignInButton = (SignInButton) findViewById(R.id.sign_in_button);
 		mSignInButton.setOnClickListener(this);
-
-//		if (savedInstanceState != null) {
-//			
-//			FragmentHoraire horaireFragment = new FragmentHoraire();
-//			activeFragment = horaireFragment;
-//			FragmentManager fragmentManager;
-//			((FragmentHoraire) horaireFragment).setmGoogleApiClient(mGoogleApiClient);
-//			fragmentManager = getSupportFragmentManager();
-//			fragmentManager.beginTransaction().replace(R.id.content_frame, activeFragment).commit();
-//		}
 	}
+	
+	
 
 	private GoogleApiClient buildGoogleApiClient() {
 		// When we build the GoogleApiClient we specify where connected and
@@ -290,33 +286,6 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 			}
 		}
 	}
-
-//	@Override
-//	protected void onSaveInstanceState(Bundle outState) {
-//		super.onSaveInstanceState(outState);
-//		outState.putInt(SAVED_PROGRESS, mSignInProgress);
-//		Log.i(TAG,"onSave");
-//		if(activeFragment != null){
-//			Log.i(TAG,"onSaveHasFragment");
-//			//activeFragment.onSaveInstanceState(outState);
-//			getSupportFragmentManager().putFragment(outState, "fragment", activeFragment);
-//		}
-//	}
-	
-//	@Override
-//	protected void onRestoreInstanceState(Bundle inState){
-//		super.onRestoreInstanceState(inState);
-//		Log.i(TAG,"onRestore");
-//		
-//		Log.i(TAG,"onRestoreHasFragment");
-//		FragmentHoraire horaireFragment = new FragmentHoraire();
-//		activeFragment = horaireFragment;
-//		FragmentManager fragmentManager;
-//		((FragmentHoraire) horaireFragment).setmGoogleApiClient(mGoogleApiClient);
-//		fragmentManager = getSupportFragmentManager();
-//		fragmentManager.beginTransaction().replace(R.id.content_frame, activeFragment).commit();
-//		
-//	}
 	
 	private void initMainActivity(){
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -384,13 +353,13 @@ public class ConnectionActivity extends SherlockFragmentActivity implements
 	}
 	
 	private void initRightMenu(String[] listAmi) {
-//		if(listAmi.length > 0){
-//			this.mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//			this.mRightDrawerList = (ListView) findViewById(R.id.right_drawer);
-//			
-//			this.mRightDrawerList.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, listAmi));
-//			this.mRightDrawerList.setOnItemClickListener(new DrawerItemClickListenerRight());
-//		}
+		if(listAmi != null && listAmi.length > 0){
+			this.mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+			this.mRightDrawerList = (ListView) findViewById(R.id.right_drawer);
+			
+			this.mRightDrawerList.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, listAmi));
+			this.mRightDrawerList.setOnItemClickListener(new DrawerItemClickListenerRight());
+		}
 	}
 	
 	/**

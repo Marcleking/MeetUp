@@ -99,7 +99,7 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
         
         this.registerForContextMenu(ExpandList);
 		
-        this.btnAjoutGroupe = (Button)rootView.findViewById(R.id.btnAjoutGroupe);
+        this.btnAjoutGroupe = (Button)rootView.findViewById(R.id.btnAjoutAmi);
         this.btnAjoutGroupe.setOnClickListener(this);
         
 		return rootView;
@@ -138,8 +138,8 @@ public class FragmentAmis extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v){
     	switch(v.getId()){
-    	case R.id.btnAjoutGroupe:
-    		ajoutGroupe(v);
+    	case R.id.btnAjoutAmi:
+    		ajoutAmi(v);
     		break;
     	}
     }

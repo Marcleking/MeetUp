@@ -25,11 +25,13 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name="com.bouchardm.meetup.MainActivity" >
+        <activity android:name="com.bouchardm.meetup.MainActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name=".ConnectionActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
@@ -37,28 +39,30 @@
         </activity>
         <activity
             android:name="com.bouchardm.meetup.Horaire"
-            android:label="@string/title_activity_horaire" >
+            android:label="@string/title_activity_horaire"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name="com.bouchardm.meetup.MeetUp"
-            android:label="@string/title_activity_meet_up" >
+            android:label="@string/title_activity_meet_up"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name="com.bouchardm.meetup.CreationMeetUp"
-            android:label="@string/title_activity_creation_meet_up" >
+            android:label="@string/title_activity_creation_meet_up"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name="com.bouchardm.meetup.ListeAmis"
-            android:label="@string/title_activity_liste_amis" >
+            android:label="@string/title_activity_liste_amis"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name="com.bouchardm.meetup.Amis"
-            android:label="@string/title_activity_amis" >
+            android:label="@string/title_activity_amis"
+            android:screenOrientation="portrait" >
         </activity>
-        <activity
-            android:name="com.bouchardm.meetup.ListeParticipants"
-            android:label="@string/title_activity_liste_participants" >
-        </activity>
+        
         <service android:name=".service.NotificationService"/>
     </application>
 </manifest>

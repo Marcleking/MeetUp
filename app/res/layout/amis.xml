@@ -4,10 +4,10 @@
     android:orientation="vertical" >
 
     <Button 
-        android:id="@+id/btnAjoutGroupe"
+        android:id="@+id/btnAjoutAmi"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Ajout groupe" />
+        android:text="Ajouter un ami" />
     
     <ExpandableListView
                 android:id="@+id/ExpList"

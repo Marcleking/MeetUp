@@ -30,11 +30,17 @@ import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -87,7 +93,6 @@ public class FragmentAccueil extends ListFragment implements View.OnClickListene
 		
 		return rootView;
 	}
-
 	
 	/**
 	 * Gestion de l'enregistrement des données (lors de la rotation)
@@ -226,6 +231,9 @@ public class FragmentAccueil extends ListFragment implements View.OnClickListene
 	    }
 		
 	}
+	
+	
+	
 	
 	public static String getMoments(String id){
         InputStream inputStream = null;
